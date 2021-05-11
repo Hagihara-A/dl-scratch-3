@@ -1,17 +1,20 @@
-
-from typing import List, Tuple
 from Variable import Variable
 from abc import ABC, abstractmethod
 import numpy as np
+
+
+def as_array(x) -> np.ndarray:
+    if np.isscalar(x):
+        return np.array(x)
+    else:
+        return x
 
 
 class Function(ABC):
     def __call__(self, *inputs: Variable):
         xs = [x.data for x in inputs]
         ys = self.forward(*xs)
-        if not isinstance(ys, tuple):
-            ys = (ys,)
-        outputs = [Variable(y) for y in ys]
+        outputs = [Variable(as_array(y)) for y in ys]
 
         for output in outputs:
             output.creator = self
@@ -20,7 +23,7 @@ class Function(ABC):
         return outputs
 
     @abstractmethod
-    def forward(self, *xs: np.ndarray) -> Tuple[np.ndarray, ...]:
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
 
     @abstractmethod
@@ -30,7 +33,7 @@ class Function(ABC):
 
 class Square(Function):
     def forward(self, x: np.ndarray):
-        return x ** 2
+        return x ** 2,
 
     def backward(self, gy: np.ndarray):
         x = self.input.data
