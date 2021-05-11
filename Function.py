@@ -1,46 +1,49 @@
-
-from typing import List, Tuple
 from Variable import Variable
 from abc import ABC, abstractmethod
 import numpy as np
 
 
+def as_array(x):
+    if np.isscalar(x):
+        return np.array(x)
+    else:
+        return x
+
+
 class Function(ABC):
     def __call__(self, *inputs: Variable):
-        xs = [x.data for x in inputs]
+        xs = (x.data for x in inputs)
         ys = self.forward(*xs)
-        if not isinstance(ys, tuple):
-            ys = (ys,)
-        outputs = [Variable(y) for y in ys]
+        outputs = [Variable(as_array(y)) for y in ys]
 
         for output in outputs:
             output.creator = self
         self.inputs = inputs
         self.outputs = outputs
-        return outputs
+        return outputs[0] if len(outputs) == 1 else outputs
 
     @abstractmethod
-    def forward(self, *xs: np.ndarray) -> Tuple[np.ndarray, ...]:
+    def forward(self, *xs: np.ndarray) -> tuple:
         pass
 
     @abstractmethod
-    def backward(self, gy: np.ndarray):
+    def backward(self, *gy: np.ndarray) -> tuple:
         pass
 
 
 class Square(Function):
-    def forward(self, x: np.ndarray):
-        return x ** 2
+    def forward(self, *xs: np.ndarray):
+        return xs[0] ** 2,
 
     def backward(self, gy: np.ndarray):
-        x = self.input.data
+        x = self.inputs
         gx = 2 * x * gy
         return gx
 
 
 class Exp(Function):
-    def forward(self, x: np.ndarray):
-        return np.exp(x)
+    def forward(self, *xs: np.ndarray):
+        return np.exp(xs[0]),
 
     def backward(self, gy: np.ndarray):
         x = self.input.data
@@ -49,7 +52,8 @@ class Exp(Function):
 
 
 class Add(Function):
-    def forward(self, x0: np.ndarray, x1: np.ndarray):
+    def forward(self, *xs: np.ndarray):
+        x0, x1 = xs
         return x0+x1,
 
     def backward(self, gy: np.ndarray):
