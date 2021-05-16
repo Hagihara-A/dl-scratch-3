@@ -1,7 +1,7 @@
-from typing import Callable
-from Function import Square, square
-import numpy as np
 import unittest
+from typing import Callable
+import numpy as np
+from Function import add, square
 from Variable import Variable
 
 
@@ -34,3 +34,12 @@ class SquareTest(unittest.TestCase):
         num_grad = numercal_diff(square, x)
         flg = np.allclose(x.grad, num_grad)
         self.assertTrue(flg)
+
+
+class BranchedGraphDiffTest(unittest.TestCase):
+    def test_two_branch_diff(self):
+        x = Variable(np.array(2.0))
+        a = square(x)
+        y = add(square(a), square(a))
+        y.backward()
+        self.assertEqual(x.grad, np.array(64.0))

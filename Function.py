@@ -15,6 +15,7 @@ class Function(ABC):
         xs = (x.data for x in inputs)
         ys = self.forward(*xs)
         outputs = [Variable(as_array(y)) for y in ys]
+        self.generation = max([x.generation for x in inputs])
 
         for output in outputs:
             output.creator = self
@@ -32,6 +33,10 @@ class Function(ABC):
 
 
 class Square(Function):
+
+    def __call__(self, *inputs: Variable) -> Variable:
+        return super().__call__(*inputs)
+
     def forward(self, *xs: np.ndarray):
         x, = xs
         return x ** 2,
@@ -43,22 +48,32 @@ class Square(Function):
 
 
 class Exp(Function):
+
+    def __call__(self, *inputs: Variable) -> Variable:
+        return super().__call__(*inputs)
+
     def forward(self, *xs: np.ndarray):
         x, = xs
         return np.exp(x),
 
-    def backward(self, gy: np.ndarray):
-        x = self.input.data
-        gx = np.exp(x) * gy
-        return gx
+    def backward(self, *gys: np.ndarray):
+        gy, = gys
+        x, = self.inputs
+        gx = np.exp(x.data) * gy
+        return gx,
 
 
 class Add(Function):
+
+    def __call__(self, *inputs: Variable) -> Variable:
+        return super().__call__(*inputs)
+
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray]:
         x0, x1 = xs
         return x0+x1,
 
-    def backward(self, gy: np.ndarray):
+    def backward(self, *gys: np.ndarray):
+        gy, = gys
         return (gy, gy)
 
 
@@ -72,13 +87,3 @@ def exp(x: Variable):
 
 def add(x0: Variable, x1: Variable):
     return Add()(x0, x1)
-
-
-x = Variable(np.array(2.0))
-y = Variable(np.array(3.0))
-
-z = add(square(x), square(y))
-z.backward()
-print(z.data)
-print(x.grad)
-print(y.grad)
