@@ -23,27 +23,29 @@ class Function(ABC):
         return outputs[0] if len(outputs) == 1 else outputs
 
     @abstractmethod
-    def forward(self, *xs: np.ndarray) -> tuple:
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
 
     @abstractmethod
-    def backward(self, *gy: np.ndarray) -> tuple:
+    def backward(self, *gy: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
 
 
 class Square(Function):
     def forward(self, *xs: np.ndarray):
-        return xs[0] ** 2,
+        x, = xs
+        return x ** 2,
 
-    def backward(self, gy: np.ndarray):
-        x = self.inputs
-        gx = 2 * x * gy
-        return gx
+    def backward(self, *gy: np.ndarray):
+        x = self.inputs[0].data
+        gx = 2 * x * gy[0]
+        return gx,
 
 
 class Exp(Function):
     def forward(self, *xs: np.ndarray):
-        return np.exp(xs[0]),
+        x, = xs
+        return np.exp(x),
 
     def backward(self, gy: np.ndarray):
         x = self.input.data
@@ -52,7 +54,7 @@ class Exp(Function):
 
 
 class Add(Function):
-    def forward(self, *xs: np.ndarray):
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray]:
         x0, x1 = xs
         return x0+x1,
 
@@ -68,10 +70,15 @@ def exp(x: Variable):
     return Exp()(x)
 
 
-x = Variable(np.array([0.5]))
-a = square(x)
-b = exp(a)
-y = square(b)
+def add(x0: Variable, x1: Variable):
+    return Add()(x0, x1)
 
-y.backward()
+
+x = Variable(np.array(2.0))
+y = Variable(np.array(3.0))
+
+z = add(square(x), square(y))
+z.backward()
+print(z.data)
 print(x.grad)
+print(y.grad)
