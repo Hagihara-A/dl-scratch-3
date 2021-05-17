@@ -2,6 +2,7 @@ from Variable import Variable
 from abc import ABC, abstractmethod
 import numpy as np
 import weakref
+from Config import Config
 
 
 def as_array(x):
@@ -16,12 +17,12 @@ class Function(ABC):
         xs = (x.data for x in inputs)
         ys = self.forward(*xs)
         outputs = [Variable(as_array(y)) for y in ys]
-        self.generation = max([x.generation for x in inputs])
-
-        for output in outputs:
-            output.creator = self
-        self.inputs = inputs
-        self.outputs = [weakref.ref(output) for output in outputs]
+        if Config.enable_backprop:
+            self.generation = max([x.generation for x in inputs])
+            for output in outputs:
+                output.creator = self
+            self.inputs = inputs
+            self.outputs = [weakref.ref(output) for output in outputs]
         return outputs[0] if len(outputs) == 1 else outputs
 
     @abstractmethod

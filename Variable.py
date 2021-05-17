@@ -22,7 +22,7 @@ class Variable:
         self.generation = creator.generation + 1
         self.__creator = creator
 
-    def backward(self):
+    def backward(self, retain_grad=False):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
         funcs: list[Function] = []
@@ -45,6 +45,9 @@ class Variable:
                     x.grad = x.grad + gx
                 if x.creator is not None:
                     add_func(x.creator)
+            if not retain_grad:
+                for y in f.outputs:
+                    y().grad = None
 
     def clear_grad(self):
         self.grad = None
