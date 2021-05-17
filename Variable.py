@@ -36,7 +36,7 @@ class Variable:
         add_func(self.creator)
         while funcs:
             f = funcs.pop()
-            gys = [output.grad for output in f.outputs]
+            gys = [output().grad for output in f.outputs]
             gxs = f.backward(*gys)
             for x, gx in zip(f.inputs, gxs):
                 if x.grad is None:

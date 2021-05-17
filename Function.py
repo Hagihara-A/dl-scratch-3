@@ -1,6 +1,7 @@
 from Variable import Variable
 from abc import ABC, abstractmethod
 import numpy as np
+import weakref
 
 
 def as_array(x):
@@ -20,7 +21,7 @@ class Function(ABC):
         for output in outputs:
             output.creator = self
         self.inputs = inputs
-        self.outputs = outputs
+        self.outputs = [weakref.ref(output) for output in outputs]
         return outputs[0] if len(outputs) == 1 else outputs
 
     @abstractmethod
