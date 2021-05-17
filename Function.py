@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-def as_array(x) -> np.ndarray:
+def as_array(x):
     if np.isscalar(x):
         return np.array(x)
     else:
@@ -12,50 +12,68 @@ def as_array(x) -> np.ndarray:
 
 class Function(ABC):
     def __call__(self, *inputs: Variable):
-        xs = [x.data for x in inputs]
+        xs = (x.data for x in inputs)
         ys = self.forward(*xs)
         outputs = [Variable(as_array(y)) for y in ys]
+        self.generation = max([x.generation for x in inputs])
 
         for output in outputs:
             output.creator = self
         self.inputs = inputs
         self.outputs = outputs
-        return outputs
+        return outputs[0] if len(outputs) == 1 else outputs
 
     @abstractmethod
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
 
     @abstractmethod
-    def backward(self, gy: np.ndarray):
+    def backward(self, *gy: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
 
 
 class Square(Function):
-    def forward(self, x: np.ndarray):
+
+    def __call__(self, *inputs: Variable) -> Variable:
+        return super().__call__(*inputs)
+
+    def forward(self, *xs: np.ndarray):
+        x, = xs
         return x ** 2,
 
-    def backward(self, gy: np.ndarray):
-        x = self.input.data
-        gx = 2 * x * gy
-        return gx
+    def backward(self, *gy: np.ndarray):
+        x = self.inputs[0].data
+        gx = 2 * x * gy[0]
+        return gx,
 
 
 class Exp(Function):
-    def forward(self, x: np.ndarray):
-        return np.exp(x)
 
-    def backward(self, gy: np.ndarray):
-        x = self.input.data
-        gx = np.exp(x) * gy
-        return gx
+    def __call__(self, *inputs: Variable) -> Variable:
+        return super().__call__(*inputs)
+
+    def forward(self, *xs: np.ndarray):
+        x, = xs
+        return np.exp(x),
+
+    def backward(self, *gys: np.ndarray):
+        gy, = gys
+        x, = self.inputs
+        gx = np.exp(x.data) * gy
+        return gx,
 
 
 class Add(Function):
-    def forward(self, x0: np.ndarray, x1: np.ndarray):
+
+    def __call__(self, *inputs: Variable) -> Variable:
+        return super().__call__(*inputs)
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray]:
+        x0, x1 = xs
         return x0+x1,
 
-    def backward(self, gy: np.ndarray):
+    def backward(self, *gys: np.ndarray):
+        gy, = gys
         return (gy, gy)
 
 
@@ -67,10 +85,5 @@ def exp(x: Variable):
     return Exp()(x)
 
 
-x = Variable(np.array([0.5]))
-a = square(x)
-b = exp(a)
-y = square(b)
-
-y.backward()
-print(x.grad)
+def add(x0: Variable, x1: Variable):
+    return Add()(x0, x1)

@@ -11,6 +11,7 @@ class Variable:
         self.data = data
         self.grad: Optional[np.ndarray] = None
         self.__creator: Optional[Function] = None
+        self.generation = 0
 
     @property
     def creator(self):
@@ -18,22 +19,32 @@ class Variable:
 
     @creator.setter
     def creator(self, creator: Function):
+        self.generation = creator.generation + 1
         self.__creator = creator
 
     def backward(self):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
-        funcs = [self.creator]
+        funcs: list[Function] = []
+        seen_set: set[Function] = set()
+
+        def add_func(f: Function):
+            if f not in seen_set:
+                funcs.append(f)
+                seen_set.add(f)
+                funcs.sort(key=lambda x: x.generation)
+        add_func(self.creator)
         while funcs:
             f = funcs.pop()
             gys = [output.grad for output in f.outputs]
             gxs = f.backward(*gys)
-            if not isinstance(gxs, tuple):
-                gxs = (gxs, )
             for x, gx in zip(f.inputs, gxs):
-                x.grad = gx
-            x, y = f.input, f.output
-            x.grad = f.backward(y.grad)
+                if x.grad is None:
+                    x.grad = gx
+                else:
+                    x.grad = x.grad + gx
+                if x.creator is not None:
+                    add_func(x.creator)
 
-            if x.creator is not None:
-                funcs.append(x.creator)
+    def clear_grad(self):
+        self.grad = None
