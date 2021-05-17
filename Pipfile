@@ -7,6 +7,9 @@ name = "pypi"
 numpy = "*"
 
 [dev-packages]
+flake8 = "*"
+mypy = "*"
+autopep8 = "*"
 
 [requires]
 python_version = "3.9"
