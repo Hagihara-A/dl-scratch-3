@@ -30,7 +30,7 @@ class Function(ABC):
         pass
 
     @abstractmethod
-    def backward(self, *gy: np.ndarray) -> tuple[np.ndarray, ...]:
+    def backward(self, *gys: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
 
 
@@ -79,6 +79,20 @@ class Add(Function):
         return (gy, gy)
 
 
+class Mul(Function):
+    def __call__(self, *inputs: Variable) -> Variable:
+        return super().__call__(*inputs)
+
+    def forward(self, *xs: np.ndarray):
+        x0, x1 = xs
+        return x0*x1,
+
+    def backward(self, *gys: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        gy, = gys
+        x0, x1 = self.inputs
+        return x1.data*gy, x0.data*gy
+
+
 def square(x: Variable):
     return Square()(x)
 
@@ -89,3 +103,7 @@ def exp(x: Variable):
 
 def add(x0: Variable, x1: Variable):
     return Add()(x0, x1)
+
+
+def mul(x0: Variable, x1: Variable):
+    return Mul()(x0, x1)
