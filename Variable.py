@@ -78,3 +78,6 @@ class Variable:
             return desc.format(None)
         else:
             return desc.format(str(self.data).replace("\n", "\n" + " "*9))
+
+    def __mul__(self, other):
+        return mul(self, other)
