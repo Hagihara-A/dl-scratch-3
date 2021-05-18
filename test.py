@@ -130,3 +130,52 @@ class VariableOverloadTest(TestCase):
         b = Variable(np.array(4.0))
         c = a + b
         self.assertEqual(c.data, np.array(7.0))
+
+    def test_variable_add_ndarray(self):
+        a = Variable(np.array(3.0))
+        b = np.array(4.0)
+        c = a + b
+        self.assertIsInstance(c, Variable)
+        self.assertEqual(c.data, np.array(7.0))
+
+    def test_variable_add_float(self):
+        a = Variable(np.array(3.0))
+        b = 4.0
+        c = a + b
+        self.assertIsInstance(c, Variable)
+        self.assertEqual(c.data, np.array(7.0))
+
+    def test_variable_mul_float(self):
+        a = Variable(np.array(3.0))
+        b = 4.0
+        c = a * b
+        self.assertIsInstance(c, Variable)
+        self.assertEqual(c.data, np.array(12.0))
+
+    def test_float_add_variable(self):
+        a = 3.0
+        b = Variable(np.array(4.0))
+        c = a + b
+        self.assertIsInstance(c, Variable)
+        self.assertEqual(c.data, np.array(7.0))
+
+    def test_float_mul_variable(self):
+        a = 3.0
+        b = Variable(np.array(4.0))
+        c = a * b
+        self.assertIsInstance(c, Variable)
+        self.assertEqual(c.data, np.array(12.0))
+
+    def test_ndarray_add_variable(self):
+        a = np.array(3.0)
+        b = Variable(np.array(4.0))
+        c = a + b
+        self.assertIsInstance(c, Variable)
+        self.assertEqual(c.data, np.array(7.0))
+
+    def test_ndarray_mul_variable(self):
+        a = np.array(3.0)
+        b = Variable(np.array(4.0))
+        c = a * b
+        self.assertIsInstance(c, Variable)
+        self.assertEqual(c.data, np.array(12.0))

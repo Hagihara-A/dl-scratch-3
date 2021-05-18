@@ -2,11 +2,13 @@ from __future__ import annotations
 from Config import Config
 import weakref
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Union
 import numpy as np
 
 
 class Variable:
+    __array_priority = 200
+
     def __init__(self, data: np.ndarray, name: Optional[str] = None) -> None:
         self.data = data
         self.grad: Optional[np.ndarray] = None
@@ -79,10 +81,16 @@ class Variable:
         else:
             return desc.format(str(self.data).replace("\n", "\n" + " "*9))
 
-    def __mul__(self, other):
+    def __mul__(self, other: Operatable):
         return mul(self, other)
 
-    def __add__(self, other: Variable):
+    def __add__(self, other: Operatable):
+        return add(self, other)
+
+    def __rmul__(self, other: Operatable):
+        return mul(self, other)
+
+    def __radd__(self, other: Operatable):
         return add(self, other)
 
 
@@ -93,8 +101,16 @@ def as_array(x):
         return x
 
 
+def as_variable(x):
+    if isinstance(x, Variable):
+        return x
+    else:
+        return Variable(x)
+
+
 class Function(ABC):
-    def __call__(self, *inputs: Variable):
+    def __call__(self, *inputs_raw: Variable):
+        inputs = [as_variable(x) for x in inputs_raw]
         xs = (x.data for x in inputs)
         ys = self.forward(*xs)
         outputs = [Variable(as_array(y)) for y in ys]
@@ -182,9 +198,12 @@ def exp(x: Variable):
     return Exp()(x)
 
 
-def add(x0: Variable, x1: Variable):
-    return Add()(x0, x1)
+Operatable = Union[int, float, np.ndarray, Variable]
 
 
-def mul(x0: Variable, x1: Variable):
-    return Mul()(x0, x1)
+def add(x0: Variable, x1: Operatable):
+    return Add()(x0, as_array(x1))
+
+
+def mul(x0: Variable, x1: Operatable):
+    return Mul()(x0, as_array(x1))
