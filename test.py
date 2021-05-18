@@ -123,4 +123,4 @@ class VariableOverloadTest(TestCase):
         a = Variable(np.array(3.0))
         b = Variable(np.array(4.0))
         c = a * b
-        self.assertEqual(c.data, np.array(6.0))
+        self.assertEqual(c.data, np.array(12.0))
