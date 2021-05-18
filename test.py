@@ -1,7 +1,7 @@
 from Config import no_grad
 from typing import Callable
 import numpy as np
-from Function import add, exp, square
+from Function import add, exp, mul, square
 from Variable import Variable
 from unittest import TestCase
 
@@ -100,3 +100,28 @@ class VariableUtilityTest(TestCase):
         self.assertEqual(v.size, arr.size)
         self.assertEqual(v.dtype, arr.dtype)
         self.assertEqual(len(v), len(arr))
+
+
+class MulTest(TestCase):
+    def test_forward(self):
+        a = Variable(np.array(3.0))
+        b = Variable(np.array(2.0))
+        y = mul(a, b)
+        self.assertEqual(y.data, np.array(6.0))
+
+    def test_backward(self):
+        a = Variable(np.array(3.0))
+        b = Variable(np.array(2.0))
+        y = mul(a, b)
+        y.backward()
+
+        self.assertEqual(a.grad, np.array(2.0))
+        self.assertEqual(b.grad, np.array(3.0))
+
+
+class VariableOverloadTest(TestCase):
+    def test_variable_mul_variable(self):
+        a = Variable(np.array(3.0))
+        b = Variable(np.array(4.0))
+        c = a * b
+        self.assertEqual(c.data, np.array(6.0))
