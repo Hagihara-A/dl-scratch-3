@@ -1,9 +1,8 @@
-from Config import no_grad
 from typing import Callable
-import numpy as np
-from Function import add, exp, mul, square
-from Variable import Variable
 from unittest import TestCase
+import numpy as np
+from Config import no_grad
+from Core import Variable, add, exp, mul, square
 
 
 def numercal_diff(f: Callable[[Variable], Variable], x: Variable, eps=1e-4):
