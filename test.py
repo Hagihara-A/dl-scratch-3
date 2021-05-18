@@ -81,3 +81,22 @@ class DontRetainGradTest(TestCase):
         self.assertIsNone(t.grad)
         self.assertEqual(x0.grad, 2.0)
         self.assertEqual(x1.grad, 1.0)
+
+
+class VariableUtilityTest(TestCase):
+    def test_can_specify_name(self):
+        v = Variable(np.array(1.0), name="variable_name")
+        self.assertEqual(v.name, "variable_name")
+
+    def test_name_is_none_is_not_given(self):
+        v = Variable(np.array(2.0))
+        self.assertIsNone(v.name)
+
+    def test_exist_properties(self):
+        arr = np.array([[1, 2], [2, 3], [3, 4]])
+        v = Variable(arr)
+        self.assertEqual(v.shape, arr.shape)
+        self.assertEqual(v.ndim, arr.ndim)
+        self.assertEqual(v.size, arr.size)
+        self.assertEqual(v.dtype, arr.dtype)
+        self.assertEqual(len(v), len(arr))

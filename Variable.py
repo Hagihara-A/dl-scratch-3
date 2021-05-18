@@ -7,11 +7,12 @@ if TYPE_CHECKING:
 
 
 class Variable:
-    def __init__(self, data: np.ndarray) -> None:
+    def __init__(self, data: np.ndarray, name: Optional[str] = None) -> None:
         self.data = data
         self.grad: Optional[np.ndarray] = None
         self.__creator: Optional[Function] = None
         self.generation = 0
+        self.name = name
 
     @property
     def creator(self):
@@ -51,3 +52,29 @@ class Variable:
 
     def clear_grad(self):
         self.grad = None
+
+    @property
+    def ndim(self):
+        return self.data.ndim
+
+    @property
+    def size(self):
+        return self.data.size
+
+    @property
+    def dtype(self):
+        return self.data.dtype
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    def __len__(self):
+        return len(self.data)
+
+    def __repr__(self) -> str:
+        desc = 'variable({})'
+        if self.data is None:
+            return desc.format(None)
+        else:
+            return desc.format(str(self.data).replace("\n", "\n" + " "*9))
