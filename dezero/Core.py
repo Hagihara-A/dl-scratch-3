@@ -1,5 +1,5 @@
 from __future__ import annotations
-from Config import Config
+from .Config import Config
 import weakref
 from abc import ABC, abstractmethod
 from typing import Optional, Union
