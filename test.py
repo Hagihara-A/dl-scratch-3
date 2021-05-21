@@ -2,7 +2,7 @@ from typing import Callable
 from unittest import TestCase
 import numpy as np
 from Config import no_grad
-from Core import Variable, add, exp, mul, square
+from Core import as_variable, div, pow, Variable, add, exp, mul, square
 
 
 def numercal_diff(f: Callable[[Variable], Variable], x: Variable, eps=1e-4):
@@ -118,6 +118,24 @@ class MulTest(TestCase):
         self.assertEqual(b.grad, np.array(3.0))
 
 
+class PowTest(TestCase):
+    def test_backward(self):
+        a = Variable(np.array(3.0))
+        b = pow(a, 4)
+        b.backward()
+        self.assertEqual(a.grad, 108.0)
+
+
+class DivTest(TestCase):
+    def test_backward(self):
+        a = as_variable(6.0)
+        b = as_variable(4.0)
+        c = div(a, b)
+        c.backward()
+        self.assertEqual(a.grad, np.array(1/4))
+        self.assertEqual(b.grad, np.array(-6/4**2))
+
+
 class VariableOverloadTest(TestCase):
     def test_variable_mul_variable(self):
         a = Variable(np.array(3.0))
@@ -179,3 +197,74 @@ class VariableOverloadTest(TestCase):
         c = a * b
         self.assertIsInstance(c, Variable)
         self.assertEqual(c.data, np.array(12.0))
+
+    def test_neg_variable(self):
+        a = Variable(np.array(3.0))
+        b = -a
+        self.assertIsInstance(b, Variable)
+        self.assertEqual(b.data, np.array(-3.0))
+
+    def test_Variable_sub_Variable(self):
+        a = Variable(np.array(3.0))
+        b = Variable(np.array(4.0))
+        c = a - b
+        self.assertEqual(c.data, np.array(-1.0))
+
+    def test_Variable_sub_float(self):
+        a = Variable(np.array(3.0))
+        b = 4.0
+        c = a - b
+        self.assertEqual(c.data, np.array(-1.0))
+
+    def test_float_sub_Variable(self):
+        a = 3.0
+        b = Variable(np.array(4.0))
+        c = a - b
+        self.assertEqual(c.data, np.array(-1.0))
+
+    def test_ndarray_sub_Variable(self):
+        a = np.array(3.0)
+        b = Variable(np.array(4.0))
+        c = a - b
+        self.assertEqual(c.data, np.array(-1.0))
+
+    def test_Variable_sub_ndarray(self):
+        a = Variable(np.array(3.0))
+        b = np.array(4.0)
+        c = a - b
+        self.assertEqual(c.data, np.array(-1.0))
+
+    def test_Variable_div_Variable(self):
+        a = Variable(np.array(6.0))
+        b = Variable(np.array(4.0))
+        c = a / b
+        self.assertEqual(c.data, np.array(1.5))
+
+    def test_Variable_div_float(self):
+        a = Variable(np.array(6.0))
+        b = 4.0
+        c = a / b
+        self.assertEqual(c.data, np.array(1.5))
+
+    def test_float_div_Variable(self):
+        a = 6.0
+        b = Variable(np.array(4.0))
+        c = a / b
+        self.assertEqual(c.data, np.array(1.5))
+
+    def test_ndarray_div_Variable(self):
+        a = np.array(6.0)
+        b = Variable(np.array(4.0))
+        c = a / b
+        self.assertEqual(c.data, np.array(1.5))
+
+    def test_Variable_div_ndarray(self):
+        a = Variable(np.array(6.0))
+        b = np.array(4.0)
+        c = a / b
+        self.assertEqual(c.data, np.array(1.5))
+
+    def test_Variable_pow_3(self):
+        a = Variable(np.array(3.0))
+        b = a ** 3
+        self.assertEqual(b.data, np.array(27.0))
