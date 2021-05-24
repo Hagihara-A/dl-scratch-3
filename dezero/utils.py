@@ -14,7 +14,8 @@ def _dot_var(v: Variable, verbose=False):
 
 
 def _dot_func(f: Function):
-    txt = f'{id(f)} [label="{f.__class__.__name__}", color=lightblue, style=filled, shape=box]\n'
+    txt = f'{id(f)} [label="{f.__class__.__name__}, ' \
+        'color=lightblue, style=filled, shape=box]\n'
     for x in f.inputs:
         txt += f'{id(x)} -> {id(f)}\n'
     for y in f.outputs:
@@ -49,6 +50,7 @@ def plot_dot_graph(output: Variable, verbose=True, to_file="graph.png"):
     dot_graph = get_dot_graph(output, verbose)
     ext = os.path.splitext(to_file)[1][1:]
 
-    with subprocess.Popen(["dot", "-T", ext, "-o", to_file], stdin=subprocess.PIPE,
+    with subprocess.Popen(["dot", "-T", ext, "-o", to_file],
+                          stdin=subprocess.PIPE,
                           universal_newlines=True) as proc:
         proc.communicate(dot_graph)
