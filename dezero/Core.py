@@ -4,6 +4,7 @@ import weakref
 from abc import ABC, abstractmethod
 from typing import Optional, Union
 import numpy as np
+import heapq as hq
 
 
 class Variable:
@@ -28,17 +29,16 @@ class Variable:
     def backward(self, retain_grad=False):
         if self.grad is None:
             self.grad = np.ones_like(self.data)
-        funcs: list[Function] = []
+        funcs: list[tuple[int, Function]] = []
         seen_set: set[Function] = set()
 
         def add_func(f: Function):
             if f not in seen_set:
-                funcs.append(f)
+                hq.heappush(funcs, (-f.generation, f))
                 seen_set.add(f)
-                funcs.sort(key=lambda x: x.generation)
         add_func(self.creator)
         while funcs:
-            f = funcs.pop()
+            _, f = hq.heappop(funcs)
             gys = [output().grad for output in f.outputs]
             gxs = f.backward(*gys)
             for x, gx in zip(f.inputs, gxs):
@@ -150,6 +150,9 @@ class Function(ABC):
     @abstractmethod
     def backward(self, *gys: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
+
+    def __lt__(self, other: Function):
+        return self.generation < other.generation
 
 
 class Square(Function):
