@@ -268,3 +268,22 @@ class VariableOverloadTest(TestCase):
         a = Variable(np.array(3.0))
         b = a ** 3
         self.assertEqual(b.data, np.array(27.0))
+
+
+class ComplexGraphDiffTest(TestCase):
+    def test_matyas(self):
+        x = Variable(np.array(1.0))
+        y = Variable(np.array(1.0))
+        z = 0.26*(x**2+y**2)-0.48*x*y
+        z.backward()
+        self.assertAlmostEqual(x.grad, 0.04, delta=1e-6)
+        self.assertAlmostEqual(y.grad, 0.04, delta=1e-6)
+
+    def test_goldstein(self):
+        x = Variable(np.array(1.0))
+        y = Variable(np.array(1.0))
+        z = (1+(x+y+1)**2*(19-14*x+3*x**2-14*y+6*x*y+3*y**2)) * \
+            (30+(2*x-3*y)**2*(18-32*x+12*x**2+48*y-36*x*y+27*y**2))
+        z.backward()
+        self.assertEqual(x.grad, -5376)
+        self.assertEqual(y.grad, 8064)
