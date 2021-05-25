@@ -1,5 +1,5 @@
 import numpy as np
-from dezero.Core import Variable, square
+from dezero.core import Variable, square
 from dezero.utils import get_dot_graph
 from unittest import TestCase
 

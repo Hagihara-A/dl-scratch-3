@@ -1,7 +1,7 @@
 import os
 import subprocess
 import heapq as hq
-from .Core import Function, Variable
+from .core import Function, Variable
 
 
 def _dot_var(v: Variable, verbose=False):

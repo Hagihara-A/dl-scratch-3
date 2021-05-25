@@ -1,8 +1,8 @@
 from typing import Callable
 from unittest import TestCase
 import numpy as np
-from dezero.Config import no_grad
-from dezero.Core import as_variable, div, pow, Variable, add, exp, mul, square
+from dezero.config import no_grad
+from dezero.core import as_variable, div, pow, Variable, add, exp, mul, square
 
 
 def numercal_diff(f: Callable[[Variable], Variable], x: Variable, eps=1e-4):

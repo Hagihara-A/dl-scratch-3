@@ -1,5 +1,5 @@
 from __future__ import annotations
-from .Config import Config
+from .config import Config
 import weakref
 from abc import ABC, abstractmethod
 from typing import Optional, Union
@@ -274,3 +274,18 @@ class Pow(Function):
 
 def pow(x: Variable, c: int):
     return Pow(c)(x)
+
+
+class Sin(Function):
+    def forward(self, *xs: np.ndarray):
+        x, = xs
+        return np.sin(x),
+
+    def backward(self, *gys: np.ndarray):
+        x, = self.inputs
+        gy, = gys
+        return gy * np.cos(x.data),
+
+
+def sin(x: Variable):
+    return Sin()(x)
