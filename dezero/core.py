@@ -29,7 +29,7 @@ class Variable:
         self.generation = creator.generation + 1
         self.__creator = creator
 
-    def backward(self, retain_grad=False, creata_graph=False):
+    def backward(self, retain_grad=False, create_graph=False):
         if self.grad is None:
             self.grad = Variable(np.ones_like(self.data))
         funcs: list[tuple[int, Function]] = []
@@ -44,7 +44,7 @@ class Variable:
             _, f = hq.heappop(funcs)
             gys = [output().grad for output in f.outputs]
 
-            with using_config("enable_backprop", creata_graph):
+            with using_config("enable_backprop", create_graph):
                 gxs = f.backward(*gys)
                 for x, gx in zip(f.inputs, gxs):
                     if x.grad is None:
@@ -228,7 +228,7 @@ class Neg(Function):
 
     def backward(self, *gys: Variable):
         gy, = gys
-        return -gy
+        return -gy,
 
 
 def neg(x: Variable):
