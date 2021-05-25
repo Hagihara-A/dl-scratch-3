@@ -5,16 +5,16 @@ from .core import Function, Variable
 
 
 def _dot_var(v: Variable, verbose=False):
-    name = v.name if v.name else ""
+    name = v.name
     if verbose and v.data:
-        if v.name:
+        if name:
             name += ": "
         name += str(v.shape) + " " + str(v.dtype)
-    return f'{id(v)} [lablel="{name}", color=orange, style=filled]\n'
+    return f'{id(v)} [label="{name}", color=orange, style=filled]\n'
 
 
 def _dot_func(f: Function):
-    txt = f'{id(f)} [label="{f.__class__.__name__}, ' \
+    txt = f'{id(f)} [label="{f.__class__.__name__}", ' \
         'color=lightblue, style=filled, shape=box]\n'
     for x in f.inputs:
         txt += f'{id(x)} -> {id(f)}\n'
@@ -46,11 +46,10 @@ def get_dot_graph(output: Variable, verbose=False):
     return f'digraph g {{\n{txt}}} '
 
 
-def plot_dot_graph(output: Variable, verbose=True, to_file="graph.png"):
+def plot_dot_graph(output: Variable, verbose=False, to_file="graph.png"):
     dot_graph = get_dot_graph(output, verbose)
     ext = os.path.splitext(to_file)[1][1:]
 
-    with subprocess.Popen(["dot", "-T", ext, "-o", to_file],
-                          stdin=subprocess.PIPE,
-                          universal_newlines=True) as proc:
-        proc.communicate(dot_graph)
+    # return subprocess.run(["cat"], input=dot_graph, text=True)
+    return subprocess.run(["dot", "-T", ext, "-o", to_file],
+                          input=dot_graph, text=True)
