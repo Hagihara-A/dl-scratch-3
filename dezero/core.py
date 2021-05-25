@@ -10,7 +10,7 @@ import heapq as hq
 class Variable:
     __array_priority = 200
 
-    def __init__(self, data: np.ndarray, name: Optional[str] = None) -> None:
+    def __init__(self, data: np.ndarray, name: str = "") -> None:
         self.data = data
         self.grad: Optional[np.ndarray] = None
         self.__creator: Optional[Function] = None
