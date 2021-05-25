@@ -11,6 +11,9 @@ class Variable:
     __array_priority = 200
 
     def __init__(self, data: np.ndarray, name: str = "") -> None:
+        if not isinstance(data, np.ndarray):
+            raise TypeError(f"data must be ndarray, not {type(data)}")
+
         self.data = data
         self.grad: Optional[np.ndarray] = None
         self.__creator: Optional[Function] = None
