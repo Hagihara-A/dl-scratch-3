@@ -300,3 +300,15 @@ class SinTest(TestCase):
         y = sin(x)
         y.backward()
         self.assertAlmostEqual(x.grad.data, 1 / np.sqrt(2))
+
+
+class TwoOrderDiffTest(TestCase):
+    def test_two_order_diff(self):
+        x = Variable(np.array(2.0))
+        y = x**4 - 2*x**2
+        y.backward(create_graph=True)
+        gx = x.grad
+        x.clear_grad()
+        self.assertEqual(gx.data, np.array(24.0))
+        gx.backward()
+        self.assertEqual(x.grad.data, np.array(44.0))
