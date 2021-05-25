@@ -89,7 +89,7 @@ class VariableUtilityTest(TestCase):
 
     def test_name_is_none_is_not_given(self):
         v = Variable(np.array(2.0))
-        self.assertIsNone(v.name)
+        self.assertEqual(v.name, "")
 
     def test_exist_properties(self):
         arr = np.array([[1, 2], [2, 3], [3, 4]])
