@@ -25,14 +25,14 @@ class SquareTest(TestCase):
         y = square(x)
         y.backward()
         expected = np.array(6.0)
-        self.assertEqual(x.grad, expected)
+        self.assertEqual(x.grad.data, expected)
 
     def test_backprop_with_numercal_diff(self):
         x = Variable(np.random.rand(1))
         y = square(x)
         y.backward()
         num_grad = numercal_diff(square, x)
-        flg = np.allclose(x.grad, num_grad)
+        flg = np.allclose(x.grad.data, num_grad.data)
         self.assertTrue(flg)
 
 
@@ -48,8 +48,8 @@ class TestAdd(TestCase):
         x1 = Variable(np.array(3.0))
         y = add(x0, x1)
         y.backward()
-        self.assertEqual(x0.grad, np.array(1.0))
-        self.assertEqual(x1.grad, np.array(1.0))
+        self.assertEqual(x0.grad.data, np.array(1.0))
+        self.assertEqual(x1.grad.data, np.array(1.0))
 
 
 class BranchedGraphDiffTest(TestCase):
@@ -58,7 +58,7 @@ class BranchedGraphDiffTest(TestCase):
         a = square(x)
         y = add(square(a), square(a))
         y.backward()
-        self.assertEqual(x.grad, np.array(64.0))
+        self.assertEqual(x.grad.data, np.array(64.0))
 
 
 class DisableBackpropTest(TestCase):
@@ -78,8 +78,8 @@ class DontRetainGradTest(TestCase):
         y.backward()
         self.assertIsNone(y.grad)
         self.assertIsNone(t.grad)
-        self.assertEqual(x0.grad, 2.0)
-        self.assertEqual(x1.grad, 1.0)
+        self.assertEqual(x0.grad.data, 2.0)
+        self.assertEqual(x1.grad.data, 1.0)
 
 
 class VariableUtilityTest(TestCase):
@@ -114,8 +114,8 @@ class MulTest(TestCase):
         y = mul(a, b)
         y.backward()
 
-        self.assertEqual(a.grad, np.array(2.0))
-        self.assertEqual(b.grad, np.array(3.0))
+        self.assertEqual(a.grad.data, np.array(2.0))
+        self.assertEqual(b.grad.data, np.array(3.0))
 
 
 class PowTest(TestCase):
@@ -123,7 +123,7 @@ class PowTest(TestCase):
         a = Variable(np.array(3.0))
         b = pow(a, 4)
         b.backward()
-        self.assertEqual(a.grad, 108.0)
+        self.assertEqual(a.grad.data, 108.0)
 
 
 class DivTest(TestCase):
@@ -132,8 +132,8 @@ class DivTest(TestCase):
         b = as_variable(4.0)
         c = div(a, b)
         c.backward()
-        self.assertEqual(a.grad, np.array(1/4))
-        self.assertEqual(b.grad, np.array(-6/4**2))
+        self.assertEqual(a.grad.data, np.array(1/4))
+        self.assertEqual(b.grad.data, np.array(-6/4**2))
 
 
 class VariableOverloadTest(TestCase):
@@ -276,8 +276,8 @@ class ComplexGraphDiffTest(TestCase):
         y = Variable(np.array(1.0))
         z = 0.26*(x**2+y**2)-0.48*x*y
         z.backward()
-        self.assertAlmostEqual(x.grad, 0.04, delta=1e-6)
-        self.assertAlmostEqual(y.grad, 0.04, delta=1e-6)
+        self.assertAlmostEqual(x.grad.data, 0.04, delta=1e-6)
+        self.assertAlmostEqual(y.grad.data, 0.04, delta=1e-6)
 
     def test_goldstein(self):
         x = Variable(np.array(1.0))
@@ -285,8 +285,8 @@ class ComplexGraphDiffTest(TestCase):
         z = (1+(x+y+1)**2*(19-14*x+3*x**2-14*y+6*x*y+3*y**2)) * \
             (30+(2*x-3*y)**2*(18-32*x+12*x**2+48*y-36*x*y+27*y**2))
         z.backward()
-        self.assertEqual(x.grad, -5376)
-        self.assertEqual(y.grad, 8064)
+        self.assertEqual(x.grad.data, -5376)
+        self.assertEqual(y.grad.data, 8064)
 
 
 class SinTest(TestCase):
@@ -299,4 +299,4 @@ class SinTest(TestCase):
         x = Variable(np.array(np.pi / 4))
         y = sin(x)
         y.backward()
-        self.assertAlmostEqual(x.grad, 1 / np.sqrt(2))
+        self.assertAlmostEqual(x.grad.data, 1 / np.sqrt(2))
