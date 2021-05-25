@@ -2,7 +2,7 @@ from typing import Callable
 from unittest import TestCase
 import numpy as np
 from dezero.config import no_grad
-from dezero.core import as_variable, div, pow, Variable, add, exp, mul, square
+from dezero.core import as_variable, div, pow, Variable, add, exp, mul, sin, square
 
 
 def numercal_diff(f: Callable[[Variable], Variable], x: Variable, eps=1e-4):
@@ -287,3 +287,16 @@ class ComplexGraphDiffTest(TestCase):
         z.backward()
         self.assertEqual(x.grad, -5376)
         self.assertEqual(y.grad, 8064)
+
+
+class SinTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.array(np.pi / 4))
+        y = sin(x)
+        self.assertAlmostEqual(y.data, 1/np.sqrt(2))
+
+    def test_backward(self):
+        x = Variable(np.array(np.pi / 4))
+        y = sin(x)
+        y.backward()
+        self.assertAlmostEqual(x.grad, 1 / np.sqrt(2))
