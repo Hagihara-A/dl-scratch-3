@@ -1,10 +1,13 @@
 from __future__ import annotations
-from .config import Config, using_config
+
+import heapq as hq
 import weakref
 from abc import ABC, abstractmethod
 from typing import Optional, Union
+
 import numpy as np
-import heapq as hq
+
+from .config import Config, using_config
 
 
 class Variable:
@@ -160,38 +163,6 @@ class Function(ABC):
         return self.generation < other.generation
 
 
-class Square(Function):
-    def forward(self, *xs: np.ndarray):
-        x, = xs
-        return x ** 2,
-
-    def backward(self, *gys: Variable):
-        x, = self.inputs
-        gy, = gys
-        gx = 2 * x * gy
-        return gx,
-
-
-def square(x: Variable):
-    return Square()(x)
-
-
-class Exp(Function):
-    def forward(self, *xs: np.ndarray):
-        x, = xs
-        return np.exp(x),
-
-    def backward(self, *gys: Variable):
-        gy, = gys
-        x, = self.inputs
-        gx = np.exp(x.data) * gy
-        return gx,
-
-
-def exp(x: Variable):
-    return Exp()(x)
-
-
 class Add(Function):
     def forward(self, *xs: np.ndarray):
         x0, x1 = xs
@@ -280,33 +251,3 @@ class Pow(Function):
 
 def pow(x: Variable, c: int):
     return Pow(c)(x)
-
-
-class Sin(Function):
-    def forward(self, *xs: np.ndarray):
-        x, = xs
-        return np.sin(x),
-
-    def backward(self, *gys: Variable):
-        x, = self.inputs
-        gy, = gys
-        return gy * np.cos(x.data),
-
-
-def sin(x: Variable):
-    return Sin()(x)
-
-
-class Cos(Function):
-    def forward(self, *xs: np.ndarray):
-        x, = xs
-        return np.cos(x),
-
-    def backward(self, *gys: Variable):
-        x, = self.inputs
-        gy, = gys
-        return gy * -sin(x),
-
-
-def cos(x: Variable):
-    return Cos()(x)
