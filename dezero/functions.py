@@ -65,3 +65,19 @@ class Cos(Function):
 
 def cos(x: Variable):
     return Cos()(x)
+
+
+class Tanh(Function):
+    def forward(self, *xs: np.ndarray) -> tuple[Variable, ...]:
+        x, = xs
+        y = np.tanh(x)
+        return y,
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        y, = self.outputs
+        return gy * (1-y()**2),
+
+
+def tanh(x: Variable):
+    return Tanh()(x)
