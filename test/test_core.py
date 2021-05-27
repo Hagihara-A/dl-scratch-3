@@ -2,7 +2,7 @@ from typing import Callable
 from unittest import TestCase
 import numpy as np
 from dezero.config import no_grad
-from dezero.core import as_variable, div, pow, Variable, add, exp, mul, sin, square
+from dezero.core import as_variable, cos, div, pow, Variable, add, exp, mul, sin, square
 
 
 def numercal_diff(f: Callable[[Variable], Variable], x: Variable, eps=1e-4):
@@ -300,6 +300,19 @@ class SinTest(TestCase):
         y = sin(x)
         y.backward()
         self.assertAlmostEqual(x.grad.data, 1 / np.sqrt(2))
+
+
+class CosTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.array(np.pi / 6))
+        y = cos(x)
+        self.assertAlmostEqual(y.data, np.array(np.sqrt(3)/2))
+
+    def test_backward(self):
+        x = Variable(np.array(np.pi / 6))
+        y = cos(x)
+        y.backward()
+        self.assertAlmostEqual(x.grad.data, np.array(-1/2))
 
 
 class TwoOrderDiffTest(TestCase):
