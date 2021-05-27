@@ -295,3 +295,18 @@ class Sin(Function):
 
 def sin(x: Variable):
     return Sin()(x)
+
+
+class Cos(Function):
+    def forward(self, *xs: np.ndarray):
+        x, = xs
+        return np.cos(x),
+
+    def backward(self, *gys: Variable):
+        x, = self.inputs
+        gy, = gys
+        return gy * -sin(x),
+
+
+def cos(x: Variable):
+    return Cos()(x)
