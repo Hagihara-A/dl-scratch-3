@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .core import Function, Variable
+from .core import Function, Variable, as_variable
 
 
 class Square(Function):
@@ -81,3 +81,25 @@ class Tanh(Function):
 
 def tanh(x: Variable):
     return Tanh()(x)
+
+
+class Reshape(Function):
+    def __init__(self, shape: tuple[int, ...]) -> None:
+        self.shape = shape
+
+    def forward(self, *xs: np.ndarray):
+        x, = xs
+        self.x_shape = x.shape
+        y = x.reshape(self.shape)
+        return y,
+
+    def backward(self, *gys: Variable) -> tuple:
+        gy, = gys
+        return reshape(gy, self.x_shape),
+
+
+def reshape(x: Variable, shape: tuple[int, ...]):
+    if x.shape == shape:
+        return as_variable(x)
+    else:
+        return Reshape(shape)(x)
