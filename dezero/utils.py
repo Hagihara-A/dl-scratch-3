@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import subprocess
 import heapq as hq
@@ -53,3 +54,15 @@ def plot_dot_graph(output: Variable, verbose=False, to_file="graph.png"):
     # return subprocess.run(["cat"], input=dot_graph, text=True)
     return subprocess.run(["dot", "-T", ext, "-o", to_file],
                           input=dot_graph, text=True)
+
+
+def sum_to(x: np.ndarray, shape: tuple[int, ...]):
+    ndim = len(shape)
+    lead = x.ndim - ndim
+    lead_axis = tuple(range(lead))
+
+    axis = tuple([i + lead for i, sx in enumerate(shape) if sx == 1])
+    y = x.sum(lead_axis + axis, keepdims=True)
+    if lead > 0:
+        y = y.squeeze(lead_axis)
+    return y
