@@ -1,6 +1,6 @@
 import numpy as np
 from dezero.core import Variable
-from dezero.functions import broadcast_to, reshape, sum_to, tanh, transpose, sum
+from dezero.functions import broadcast_to, matmul, reshape, sum_to, tanh, transpose, sum
 from unittest import TestCase
 from numpy.testing import assert_equal
 
@@ -85,3 +85,17 @@ class SumToTest(TestCase):
         y = sum_to(x, (1, 4))
         y.backward()
         assert_equal(x.grad.data, np.ones((3, 4)))
+
+
+class MatMulTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.arange(4).reshape(2, 2))
+        W = Variable(np.arange(6).reshape(2, 3))
+        y = matmul(x, W)
+        assert_equal(y.data, np.array([[3, 4, 5], [9, 14, 19]]))
+
+    def test_backward(self):
+        x = Variable(np.arange(4).reshape(2, 2))
+        W = Variable(np.arange(6).reshape(2, 3))
+        y = matmul(x, W)
+        y.backward()
