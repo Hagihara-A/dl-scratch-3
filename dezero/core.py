@@ -152,7 +152,7 @@ class Function(ABC):
         return outputs[0] if len(outputs) == 1 else outputs
 
     @abstractmethod
-    def forward(self, *xs: np.ndarray) -> tuple[Variable, ...]:
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         pass
 
     @abstractmethod

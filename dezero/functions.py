@@ -68,7 +68,7 @@ def cos(x: Variable):
 
 
 class Tanh(Function):
-    def forward(self, *xs: np.ndarray) -> tuple[Variable, ...]:
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, = xs
         y = np.tanh(x)
         return y,
