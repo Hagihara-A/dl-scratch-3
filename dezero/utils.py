@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 import numpy as np
 import os
@@ -70,7 +71,7 @@ def sum_to(x: np.ndarray, shape: tuple[int, ...]):
 
 
 def reshape_sum_backward(gy: Variable, x_shape: tuple[int, ...],
-                         axis: Optional[int], keepdims: bool):
+                         axis: Optional[int | tuple[int]], keepdims: bool):
     """Reshape gradient appropriately for dezero.functions.sum's backward.
     Args:
         gy (dezero.Variable): Gradient variable from the output by backprop.
