@@ -102,6 +102,16 @@ class VariableUtilityTest(TestCase):
         self.assertEqual(v.dtype, arr.dtype)
         self.assertEqual(len(v), len(arr))
 
+    def test_reshape(self):
+        x = Variable(np.arange(12).reshape(3, 4))
+        y = x.reshape((6, 2))
+        self.assertEqual(y.shape, (6, 2))
+
+    def test_transpose(self):
+        x = Variable(np.arange(12).reshape(3, 4))
+        y = x.T
+        self.assertEqual(y.shape, (4, 3))
+
 
 class MulTest(TestCase):
     def test_forward(self):
