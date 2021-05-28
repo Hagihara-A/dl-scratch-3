@@ -4,10 +4,13 @@ from dezero import utils
 from typing import Optional
 import numpy as np
 
-from .core import Function, Variable, as_variable
+from .core import Function, Variable, as_variable, Operatable
 
 
 class Square(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x, = xs
         return x ** 2,
@@ -24,6 +27,9 @@ def square(x: Variable):
 
 
 class Exp(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x, = xs
         return np.exp(x),
@@ -40,6 +46,9 @@ def exp(x: Variable):
 
 
 class Sin(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x, = xs
         return np.sin(x),
@@ -55,6 +64,9 @@ def sin(x: Variable):
 
 
 class Cos(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x, = xs
         return np.cos(x),
@@ -70,6 +82,9 @@ def cos(x: Variable):
 
 
 class Tanh(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, = xs
         y = np.tanh(x)
@@ -86,6 +101,9 @@ def tanh(x: Variable):
 
 
 class Reshape(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def __init__(self, shape: tuple[int, ...]) -> None:
         self.shape = shape
 
@@ -108,6 +126,9 @@ def reshape(x: Variable, shape: tuple[int, ...]):
 
 
 class Transpose(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, = xs
         return x.transpose(),
@@ -122,6 +143,9 @@ def transpose(x: Variable):
 
 
 class Sum(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def __init__(self, axis: Optional[int | tuple[int]], keepdims=False):
         self.axis = axis
         self.keepdims = keepdims
@@ -145,6 +169,9 @@ def sum(x: Variable, axis: Optional[int | tuple[int]] = None, keepdims=False):
 
 
 class BroadcastTo(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def __init__(self, shape: tuple[int, ...]) -> None:
         self.shape = shape
 
@@ -166,6 +193,9 @@ def broadcast_to(x: Variable, shape: tuple[int, ...]):
 
 
 class SumTo(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def __init__(self, shape: tuple[int, ...]) -> None:
         self.shape = shape
 
@@ -189,6 +219,9 @@ def sum_to(x: Variable, shape: tuple[int, ...]):
 
 
 class MatMul(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, W = xs
         y = x.dot(W)

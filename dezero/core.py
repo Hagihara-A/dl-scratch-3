@@ -174,6 +174,9 @@ class Function(ABC):
 
 
 class Add(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x0, x1 = xs
         self.x0_shape, self.x1_shape = x0.shape, x1.shape
@@ -193,6 +196,9 @@ def add(x0: Variable, x1: Operatable):
 
 
 class Mul(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x0, x1 = xs
         return x0*x1,
@@ -208,6 +214,9 @@ def mul(x0: Variable, x1: Operatable):
 
 
 class Neg(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x, = xs
         return -x,
@@ -222,6 +231,9 @@ def neg(x: Variable):
 
 
 class Sub(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x0, x1 = xs
         return x0 - x1,
@@ -236,6 +248,9 @@ def sub(x0: Operatable, x1: Operatable):
 
 
 class Div(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray):
         x0, x1 = xs
         return x0/x1,
@@ -251,6 +266,9 @@ def div(x0: Operatable, x1: Operatable):
 
 
 class Pow(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def __init__(self, c: float):
         self.c = c
 
