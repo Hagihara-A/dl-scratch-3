@@ -103,3 +103,17 @@ def reshape(x: Variable, shape: tuple[int, ...]):
         return as_variable(x)
     else:
         return Reshape(shape)(x)
+
+
+class Transpose(Function):
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, = xs
+        return x.transpose(),
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        return transpose(gy),
+
+
+def transpose(x: Variable):
+    return Transpose()(x)
