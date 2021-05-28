@@ -1,7 +1,8 @@
 import numpy as np
 from dezero.core import Variable
-from dezero.functions import reshape, tanh, transpose
+from dezero.functions import broadcast_to, reshape, sum_to, tanh, transpose, sum
 from unittest import TestCase
+from numpy.testing import assert_equal
 
 
 class TanhTest(TestCase):
@@ -43,3 +44,44 @@ class TransposeTest(TestCase):
         y = transpose(x)
         y.backward()
         self.assertEqual(x.grad.shape, x.shape)
+
+
+class SumTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.arange(6).reshape(2, 3))
+        y = sum(x)
+        self.assertEqual(y.data, np.array(15))
+
+    def test_backward(self):
+        x = Variable(np.arange(6).reshape(2, 3))
+        y = sum(x)
+        y.backward()
+        assert_equal(x.grad.data, np.ones_like(x.data))
+
+
+class BroadcastToTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.array([1, 2, 3]))
+        y = broadcast_to(x, (2, 3))
+        self.assertEqual(y.data.shape, (2, 3))
+        assert_equal(np.array([[1, 2, 3], [1, 2, 3]]), y.data)
+
+    def test_backward(self):
+        x = Variable(np.array([1, 2, 3]))
+        y = broadcast_to(x, (2, 3))
+        y.backward()
+        self.assertEqual(x.grad.shape, (3,))
+        assert_equal(x.grad.data, np.array([2, 2, 2]))
+
+
+class SumToTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.arange(12).reshape(3, 4))
+        y = sum_to(x, (1, 4))
+        assert_equal(y.data, np.array([[12, 15, 18, 21]]))
+
+    def test_backward(self):
+        x = Variable(np.arange(12).reshape(3, 4))
+        y = sum_to(x, (1, 4))
+        y.backward()
+        assert_equal(x.grad.data, np.ones((3, 4)))
