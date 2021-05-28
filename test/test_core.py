@@ -1,6 +1,6 @@
 from typing import Callable
 from unittest import TestCase
-
+from numpy.testing import assert_equal
 import numpy as np
 from dezero.config import no_grad
 from dezero.core import Variable, add, as_variable, div, mul, pow
@@ -38,7 +38,7 @@ class SquareTest(TestCase):
         self.assertTrue(flg)
 
 
-class TestAdd(TestCase):
+class AddTest(TestCase):
     def test_forward(self):
         x0 = Variable(np.array(2.0))
         x1 = Variable(np.array(3.0))
@@ -52,6 +52,14 @@ class TestAdd(TestCase):
         y.backward()
         self.assertEqual(x0.grad.data, np.array(1.0))
         self.assertEqual(x1.grad.data, np.array(1.0))
+
+    def test_backward_when_broadcasted(self):
+        x0 = Variable(np.array([10, 11, 12]))
+        x1 = Variable(np.array([5]))
+        y = x0 + x1
+        y.backward()
+        assert_equal(x0.grad.data, np.ones((3,)))
+        assert_equal(x1.grad.data, np.array([3]))
 
 
 class BranchedGraphDiffTest(TestCase):
