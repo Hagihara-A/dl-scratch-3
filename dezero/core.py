@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import dezero
 import heapq as hq
 import weakref
 from abc import ABC, abstractmethod
@@ -118,6 +118,13 @@ class Variable:
 
     def __pow__(self, other: int):
         return pow(self, other)
+
+    def transpose(self):
+        return dezero.functions.transpose(self)
+
+    @property
+    def T(self):
+        return self.transpose()
 
 
 Operatable = Union[int, float, np.ndarray, Variable]
