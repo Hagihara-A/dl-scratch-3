@@ -126,6 +126,9 @@ class Variable:
     def T(self):
         return self.transpose()
 
+    def reshape(self, shape: tuple[int, ...]):
+        return dezero.functions.reshape(self, shape)
+
 
 Operatable = Union[int, float, np.ndarray, Variable]
 
