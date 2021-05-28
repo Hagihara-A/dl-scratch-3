@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dezero import utils
+from typing import Optional
 import numpy as np
 
 from .core import Function, Variable, as_variable
@@ -117,3 +119,71 @@ class Transpose(Function):
 
 def transpose(x: Variable):
     return Transpose()(x)
+
+
+class Sum(Function):
+    def __init__(self, axis: Optional[int | tuple[int]], keepdims=False):
+        self.axis = axis
+        self.keepdims = keepdims
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, = xs
+        self.x_shape = x.shape
+        y = x.sum(axis=self.axis, keepdims=self.keepdims)
+        return y,
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        gy = utils.reshape_sum_backward(
+            gy, self.x_shape, self.axis, self.keepdims)
+        gx = broadcast_to(gy, self.x_shape)
+        return gx,
+
+
+def sum(x: Variable, axis: Optional[int | tuple[int]] = None, keepdims=False):
+    return Sum(axis, keepdims)(x)
+
+
+class BroadcastTo(Function):
+    def __init__(self, shape: tuple[int, ...]) -> None:
+        self.shape = shape
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, = xs
+        self.x_shape = x.shape
+        return np.broadcast_to(x, self.shape),
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        gx = sum_to(gy, self.x_shape)
+        return gx,
+
+
+def broadcast_to(x: Variable, shape: tuple[int, ...]):
+    if (x.shape == shape):
+        return as_variable(x)
+    return BroadcastTo(shape)(x)
+
+
+class SumTo(Function):
+    def __init__(self, shape: tuple[int, ...]) -> None:
+        self.shape = shape
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, = xs
+        self.x_shape = x.shape
+        y = utils.sum_to(x, self.shape)
+        return y,
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        gx = broadcast_to(gy, self.x_shape)
+        return gx,
+
+
+def sum_to(x: Variable, shape: tuple[int, ...]):
+    if x.shape == shape:
+        return as_variable(x)
+    else:
+        return SumTo(shape)(x)
+
