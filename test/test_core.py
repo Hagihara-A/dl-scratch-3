@@ -137,6 +137,14 @@ class MulTest(TestCase):
         self.assertEqual(a.grad.data, np.array(2.0))
         self.assertEqual(b.grad.data, np.array(3.0))
 
+    def test_backward_with_broadcast(self):
+        x0 = Variable(np.array([10, 11, 12]))
+        x1 = Variable(np.array([5]))
+        y = mul(x0, x1)
+        y.backward()
+        assert_equal(x0.grad.data, np.array([5, 5, 5]))
+        assert_equal(x1.grad.data, np.array([10+11+12]))
+
 
 class PowTest(TestCase):
     def test_backward(self):
