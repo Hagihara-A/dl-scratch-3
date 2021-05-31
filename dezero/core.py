@@ -244,7 +244,12 @@ class Sub(Function):
 
     def backward(self, *gys: Variable):
         gy, = gys
-        return gy, -gy
+        x0, x1 = self.inputs
+        gx0, gx1 = gy, -gy
+        if (x0.shape != x1.shape):
+            gx0 = dezero.functions.sum_to(gx0, x0.shape)
+            gx1 = dezero.functions.sum_to(gx1, x1.shape)
+        return gx0, gx1
 
 
 def sub(x0: Operatable, x1: Operatable):
