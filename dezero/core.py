@@ -206,7 +206,11 @@ class Mul(Function):
     def backward(self, *gys: Variable):
         gy, = gys
         x0, x1 = self.inputs
-        return x1*gy, x0*gy
+        gx0, gx1 = x1*gy, x0 * gy
+        if (x0.shape != x1.shape):
+            gx0 = dezero.functions.sum_to(gx0, x0.shape)
+            gx1 = dezero.functions.sum_to(gx1, x1.shape)
+        return gx0, gx1
 
 
 def mul(x0: Variable, x1: Operatable):
