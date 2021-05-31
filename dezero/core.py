@@ -11,7 +11,7 @@ from .config import Config, using_config
 
 
 class Variable:
-    __array_priority = 200
+    __array_priority__ = 200
 
     def __init__(self, data: np.ndarray, name: str = "") -> None:
         if not isinstance(data, np.ndarray):
