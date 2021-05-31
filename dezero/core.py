@@ -133,14 +133,11 @@ class Variable:
 Operatable = Union[int, float, np.ndarray, Variable]
 
 
-def as_array(x):
-    if np.isscalar(x):
-        return np.array(x)
-    else:
-        return x
+def as_array(x: Operatable):
+    return np.array(x)
 
 
-def as_variable(x):
+def as_variable(x: Operatable):
     if isinstance(x, Variable):
         return x
     else:
@@ -150,7 +147,7 @@ def as_variable(x):
 class Function(ABC):
     def __call__(self, *inputs_raw: Operatable):
         inputs = [as_variable(x) for x in inputs_raw]
-        xs = (x.data for x in inputs)
+        xs = [x.data for x in inputs]
         ys = self.forward(*xs)
         outputs = [as_variable(y) for y in ys]
         if Config.enable_backprop:
@@ -179,15 +176,15 @@ class Add(Function):
 
     def forward(self, *xs: np.ndarray):
         x0, x1 = xs
-        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         return x0+x1,
 
     def backward(self, *gys: Variable):
         gy, = gys
+        x0, x1 = self.inputs
         gx0, gx1 = gy, gy
-        if (self.x0_shape != self.x1_shape):
-            gx0 = dezero.functions.sum_to(gx0, self.x0_shape)
-            gx1 = dezero.functions.sum_to(gx1, self.x1_shape)
+        if (x0.shape != x1.shape):
+            gx0 = dezero.functions.sum_to(gx0, x0.shape)
+            gx1 = dezero.functions.sum_to(gx1, x1.shape)
         return (gx0, gx1)
 
 
