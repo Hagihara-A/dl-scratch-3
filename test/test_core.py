@@ -3,7 +3,7 @@ from unittest import TestCase
 from numpy.testing import assert_equal
 import numpy as np
 from dezero.config import no_grad
-from dezero.core import Variable, add, as_variable, div, mul, pow
+from dezero.core import Variable, add, as_variable, div, mul, pow, sub
 from dezero.functions import cos, exp, sin, square
 
 
@@ -190,6 +190,12 @@ class SubTest(TestCase):
 
 
 class DivTest(TestCase):
+    def test_forward(self):
+        a = as_variable(6.0)
+        b = as_variable(4.0)
+        c = div(a, b)
+        self.assertEqual(c.data, np.array(1.5))
+
     def test_backward(self):
         a = as_variable(6.0)
         b = as_variable(4.0)
@@ -197,6 +203,14 @@ class DivTest(TestCase):
         c.backward()
         self.assertEqual(a.grad.data, np.array(1/4))
         self.assertEqual(b.grad.data, np.array(-6/4**2))
+
+    def test_backward_with_broadcast(self):
+        x0 = Variable(np.array([10, 11, 12]))
+        x1 = Variable(np.array([2]))
+        y = div(x0, x1)
+        y.backward()
+        assert_equal(x0.grad.data, np.array([0.5, 0.5, 0.5]))
+        assert_equal(x1.grad.data, np.array([-10/4-11/4-12/4]))
 
 
 class VariableOverloadTest(TestCase):
