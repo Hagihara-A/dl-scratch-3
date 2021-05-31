@@ -180,6 +180,12 @@ class SubTest(TestCase):
         self.assertEqual(a.grad.data, np.array(1.0))
         self.assertEqual(b.grad.data, np.array(-1.0))
 
+    def test_forward_with_broadcast(self):
+        x0 = Variable(np.arange(100).reshape((100, 1)))
+        x1 = Variable(np.ones((100, 1)))
+        y = sub(x0, x1)
+        assert_equal(y.data, np.arange(-1, 99).reshape(100, 1))
+
     def test_backward_with_broadcast(self):
         x0 = Variable(np.array([10, 11, 12]))
         x1 = Variable(np.array([5]))
@@ -345,6 +351,12 @@ class VariableOverloadTest(TestCase):
         a = Variable(np.array(3.0))
         b = a ** 3
         self.assertEqual(b.data, np.array(27.0))
+
+    def test_ndarray_sub_w_broadcast(self):
+        x0 = np.arange(10).reshape(2, 5)
+        x1 = Variable(np.array(2))
+        y = x0 + x1
+        assert_equal(y.data, np.arange(2, 12).reshape(2, 5))
 
 
 class ComplexGraphDiffTest(TestCase):
