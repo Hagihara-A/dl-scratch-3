@@ -147,11 +147,22 @@ class MulTest(TestCase):
 
 
 class PowTest(TestCase):
+    def test_forward(self):
+        a = Variable(np.array(3.0))
+        b = pow(a, 4)
+        self.assertEqual(b.data, 81.0)
+
     def test_backward(self):
         a = Variable(np.array(3.0))
         b = pow(a, 4)
         b.backward()
         self.assertEqual(a.grad.data, 108.0)
+
+    def test_backward_with_broadcast(self):
+        x0 = Variable(np.array([10, 11, 12]))
+        y = pow(x0, 3)
+        y.backward()
+        assert_equal(x0.grad.data, np.array([3*10**2, 3*11**2, 3*12**2]))
 
 
 class DivTest(TestCase):
