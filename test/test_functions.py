@@ -1,6 +1,6 @@
 import numpy as np
 from dezero.core import Variable
-from dezero.functions import broadcast_to, matmul, reshape, sum_to, tanh, transpose, sum
+from dezero.functions import broadcast_to, matmul, mean_squared_error, reshape, sum_to, tanh, transpose, sum
 from unittest import TestCase
 from numpy.testing import assert_equal
 
@@ -99,3 +99,18 @@ class MatMulTest(TestCase):
         W = Variable(np.arange(6).reshape(2, 3))
         y = matmul(x, W)
         y.backward()
+
+
+class MSETest(TestCase):
+    def test_forward(self):
+        x0 = Variable(np.arange(10))
+        x1 = np.arange(2, 12)
+        L = mean_squared_error(x0, x1)
+        self.assertEqual(L.data, np.array(4))
+
+    def test_backward(self):
+        x0 = Variable(np.arange(10))
+        x1 = np.arange(2, 12)
+        L = mean_squared_error(x0, x1)
+        L.backward()
+        assert_equal(x0.grad.data, 2/10*(x0.data - x1))
