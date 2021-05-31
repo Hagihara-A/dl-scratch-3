@@ -165,6 +165,30 @@ class PowTest(TestCase):
         assert_equal(x0.grad.data, np.array([3*10**2, 3*11**2, 3*12**2]))
 
 
+class SubTest(TestCase):
+    def test_forward(self):
+        a = Variable(np.array(3.0))
+        b = Variable(np.array(2.0))
+        y = sub(a, b)
+        self.assertEqual(y.data, np.array(1.0))
+
+    def test_backward(self):
+        a = Variable(np.array(3.0))
+        b = Variable(np.array(2.0))
+        y = sub(a, b)
+        y.backward()
+        self.assertEqual(a.grad.data, np.array(1.0))
+        self.assertEqual(b.grad.data, np.array(-1.0))
+
+    def test_backward_with_broadcast(self):
+        x0 = Variable(np.array([10, 11, 12]))
+        x1 = Variable(np.array([5]))
+        y = sub(x0, x1)
+        y.backward()
+        assert_equal(x0.grad.data, np.array([1, 1, 1]))
+        assert_equal(x1.grad.data, np.array([-3]))
+
+
 class DivTest(TestCase):
     def test_backward(self):
         a = as_variable(6.0)
