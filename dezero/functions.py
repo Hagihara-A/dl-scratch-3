@@ -288,6 +288,9 @@ def linear(x: Operatable, W: Operatable,
 
 
 class Sigmoid(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, = xs
         y = np.tanh(x * 0.5) * 0.5 + 0.5  # Better implementation
