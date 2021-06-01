@@ -1,6 +1,7 @@
+from unittest.case import skip
 import numpy as np
 from dezero.core import Variable
-from dezero.functions import broadcast_to, matmul, mean_squared_error, reshape, sum_to, tanh, transpose, sum
+from dezero.functions import broadcast_to, linear, matmul, mean_squared_error, reshape, sigmoid, sum_to, tanh, transpose, sum
 from unittest import TestCase
 from numpy.testing import assert_equal
 
@@ -114,3 +115,33 @@ class MSETest(TestCase):
         L = mean_squared_error(x0, x1)
         L.backward()
         assert_equal(x0.grad.data, 2/10*(x0.data - x1))
+
+
+class LinearTest(TestCase):
+    def test_forward_W_bias(self):
+        x = Variable(np.array([[1, 2, 3], [6, 7, 8]]))
+        W = Variable(np.arange(1, 7).reshape(3, 2))
+        b = Variable(np.array(5))
+        y = linear(x, W, b)
+        assert_equal(np.array([[27, 33], [72, 93]]), y.data)
+
+    def test_forward_WO_bias(self):
+        x = Variable(np.array([[1, 2, 3], [6, 7, 8]]))
+        W = Variable(np.arange(1, 7).reshape(3, 2))
+        y = linear(x, W)
+        assert_equal(np.array([[22, 28], [67, 88]]), y.data)
+
+    @skip("unimplemented")
+    def test_backward_W_bias(self):
+        x = Variable(np.array([[1, 2, 3], [6, 7, 8]]))
+        W = Variable(np.arange(1, 7).reshape(3, 2))
+        b = Variable(np.array(5))
+        y = linear(x, W, b)
+        y.backward()
+
+
+class SigmoidTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.array(2.0))
+        y = sigmoid(x)
+        self.assertAlmostEqual(y.data, np.array(0.88079707))
