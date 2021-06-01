@@ -115,6 +115,19 @@ class MSETest(TestCase):
         L.backward()
         assert_equal(x0.grad.data, 2/10*(x0.data - x1))
 
+    def test_forward_2D(self):
+        x0 = Variable(np.arange(10).reshape(2, 5))
+        x1 = np.arange(2, 12).reshape(2, 5)
+        L = mean_squared_error(x0, x1)
+        self.assertEqual(L.data, 20)
+
+    def test_backward_2D(self):
+        x0 = Variable(np.arange(10).reshape(2, 5))
+        x1 = np.arange(2, 12).reshape(2, 5)
+        L = mean_squared_error(x0, x1)
+        L.backward()
+        assert_equal(x0.grad.data, 2/2*(x0.data - x1))
+
 
 class LinearTest(TestCase):
     def test_forward_W_bias(self):
@@ -147,6 +160,7 @@ class LinearTest(TestCase):
         y.backward()
         assert_equal(x.grad.data, np.ones((2, 2)) @ W.data.T)
         assert_equal(W.grad.data, x.data.T @ np.ones((2, 2)))
+        self.assertIsNone(y.creator.inputs[2].grad)
 
 
 class SigmoidTest(TestCase):
