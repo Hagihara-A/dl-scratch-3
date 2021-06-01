@@ -269,14 +269,14 @@ class Linear(Function):
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, W, b = xs
         y = x.dot(W)
-        if b.any():
+        if b.any() is not None:
             y += b
         return y,
 
     def backward(self, *gys: Variable) -> tuple[Variable, ...]:
         x, W, b = self.inputs
         gy, = gys
-        gb = sum_to(gy, b.shape) if b.data.any() else None
+        gb = sum_to(gy, b.shape) if b.data.all() is not None else None
         gx = matmul(gy, W.T)
         gW = matmul(x.T, gy)
         return gx, gW, gb
