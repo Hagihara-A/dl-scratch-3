@@ -267,34 +267,34 @@ class Linear(Function):
         return super().__call__(*inputs_raw)
 
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
-        x = xs[0]
-        W = xs[1]
-        b = xs[2] if len(xs) == 3 else None
+        x, W, b = xs
         y = x.dot(W)
-        if b is not None:
+        if b.any():
             y += b
         return y,
 
     def backward(self, *gys: Variable) -> tuple[Variable, ...]:
         x, W, b = self.inputs
         gy, = gys
-        gb = None if b.data is None else sum_to(gy, b.shape)
+        gb = sum_to(gy, b.shape) if b.data.any() else None
         gx = matmul(gy, W.T)
         gW = matmul(x.T, gy)
         return gx, gW, gb
 
 
-def linear(x: Operatable, W: Operatable, b: Operatable = None):
+def linear(x: Operatable, W: Operatable,
+           b: Operatable = Variable(np.array(None))):
     return Linear()(x, W, b)
 
 
 class Sigmoid(Function):
-    def forward(self, *xs):
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, = xs
         y = np.tanh(x * 0.5) * 0.5 + 0.5  # Better implementation
         return y,
 
-    def backward(self, gy):
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
         y, = self.outputs
         gx = gy * y() * (1 - y())
         return gx,
