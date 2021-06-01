@@ -271,7 +271,7 @@ class Linear(Function):
         W = xs[1]
         b = xs[2] if len(xs) == 3 else None
         y = x.dot(W)
-        if b:
+        if b is not None:
             y += b
         return y,
 
