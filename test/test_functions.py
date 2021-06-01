@@ -3,7 +3,7 @@ import numpy as np
 from dezero.core import Variable
 from dezero.functions import broadcast_to, linear, matmul, mean_squared_error, reshape, sigmoid, sum_to, tanh, transpose, sum
 from unittest import TestCase
-from numpy.testing import assert_equal
+from numpy.testing import assert_almost_equal, assert_equal
 
 
 class TanhTest(TestCase):
@@ -142,6 +142,13 @@ class LinearTest(TestCase):
 
 class SigmoidTest(TestCase):
     def test_forward(self):
-        x = Variable(np.array(2.0))
+        x = Variable(np.array([2.0, 2.0]))
         y = sigmoid(x)
-        self.assertAlmostEqual(y.data, np.array(0.88079707))
+        assert_almost_equal(y.data, np.array([0.88079707, 0.88079707]))
+
+    def test_backward(self):
+        out = 0.88079707
+        x = Variable(np.array([2.0, 2.0]))
+        y = sigmoid(x)
+        y.backward()
+        assert_almost_equal(x.grad.data, [(1-out)*out]*2)
