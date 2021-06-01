@@ -1,4 +1,3 @@
-from unittest.case import skip
 import numpy as np
 from dezero.core import Variable
 from dezero.functions import broadcast_to, linear, matmul, mean_squared_error, reshape, sigmoid, sum_to, tanh, transpose, sum
@@ -131,13 +130,23 @@ class LinearTest(TestCase):
         y = linear(x, W)
         assert_equal(np.array([[22, 28], [67, 88]]), y.data)
 
-    @skip("unimplemented")
     def test_backward_W_bias(self):
         x = Variable(np.array([[1, 2, 3], [6, 7, 8]]))
         W = Variable(np.arange(1, 7).reshape(3, 2))
         b = Variable(np.array(5))
         y = linear(x, W, b)
         y.backward()
+        assert_equal(x.grad.data, np.ones((2, 2)) @ W.data.T)
+        assert_equal(W.grad.data, x.data.T @ np.ones((2, 2)))
+        assert_equal(b.grad.data, 4)
+
+    def test_backward_WO_bias(self):
+        x = Variable(np.array([[1, 2, 3], [6, 7, 8]]))
+        W = Variable(np.arange(1, 7).reshape(3, 2))
+        y = linear(x, W)
+        y.backward()
+        assert_equal(x.grad.data, np.ones((2, 2)) @ W.data.T)
+        assert_equal(W.grad.data, x.data.T @ np.ones((2, 2)))
 
 
 class SigmoidTest(TestCase):
