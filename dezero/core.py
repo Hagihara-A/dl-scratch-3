@@ -13,8 +13,8 @@ from .config import Config, using_config
 class Variable:
     __array_priority__ = 200
 
-    def __init__(self, data: np.ndarray, name: str = "") -> None:
-        if not isinstance(data, np.ndarray):
+    def __init__(self, data: np.ndarray | None, name: str = "") -> None:
+        if (data is not None) and (not isinstance(data, np.ndarray)):
             raise TypeError(f"data must be ndarray, not {type(data)}")
 
         self.data = data
@@ -133,15 +133,19 @@ class Variable:
 Operatable = Union[int, float, np.ndarray, Variable]
 
 
-def as_array(x: Operatable):
-    return np.array(x)
-
-
-def as_variable(x: Operatable):
+def as_variable(x: Operatable | None):
     if isinstance(x, Variable):
         return x
     else:
-        return Variable(as_array(x))
+        if np.isscalar(x):
+            return Variable(np.array(x))
+        elif isinstance(x, np.ndarray):
+            return Variable(x)
+        elif x is None:
+            return Variable(x)
+        else:
+            raise TypeError(
+                f"given type is {type(x)}, expected Operatble | None")
 
 
 class Function(ABC):
