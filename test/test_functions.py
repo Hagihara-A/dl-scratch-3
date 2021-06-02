@@ -1,6 +1,7 @@
 import numpy as np
 from dezero.core import Variable
-from dezero.functions import broadcast_to, linear, matmul, mean_squared_error, reshape, sigmoid, sum_to, tanh, transpose, sum
+from dezero.functions import broadcast_to, linear, matmul, mean_squared_error,\
+    reshape, sigmoid, sum_to, tanh, transpose, sum
 from unittest import TestCase
 from numpy.testing import assert_almost_equal, assert_equal
 
