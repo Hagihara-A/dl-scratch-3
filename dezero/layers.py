@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Generator, Optional
 import weakref
 from dezero.core import Parameter, Variable
 import numpy as np
@@ -26,7 +26,7 @@ class Layer(ABC):
     def forward(self, *xs: np.ndarray) -> tuple[Variable, ...]:
         pass
 
-    def params(self):
+    def params(self) -> Generator[Parameter, None, None]:
         for name in self._params:
             obj = self.__dict__[name]
 
