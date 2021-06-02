@@ -15,7 +15,7 @@ class MLP(Model):
             -> None:
         super().__init__()
         self.activation = activation
-        self.layers = []
+        self.layers: list[Linear] = []
 
         for i, out_size in enumerate(fc_output_sizes):
             layer = Linear(out_size)
@@ -24,6 +24,6 @@ class MLP(Model):
 
     def forward(self, *xs: np.ndarray):
         x, = xs
-        for ly in self.layers:
+        for ly in self.layers[:-1]:
             x = self.activation(ly(x))
         return self.layers[-1](x),
