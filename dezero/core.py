@@ -298,3 +298,7 @@ class Pow(Function):
 
 def pow(x: Variable, c: int):
     return Pow(c)(x)
+
+
+class Parameter(Variable):
+    pass
