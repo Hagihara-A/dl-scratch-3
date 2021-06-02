@@ -1,15 +1,17 @@
+from __future__ import annotations
+from abc import ABC, abstractmethod
 from typing import Optional
 import weakref
-from dezero.core import Parameter
+from dezero.core import Parameter, Variable
 import numpy as np
 import dezero.functions as F
 
 
-class Layer:
+class Layer(ABC):
     def __init__(self) -> None:
         self._params: set[str] = set()
 
-    def __setattr__(self, name: str, value) -> None:
+    def __setattr__(self, name: str, value: Parameter | Layer) -> None:
         if isinstance(value, (Parameter, Layer)):
             self._params.add(name)
         super().__setattr__(name, value)
@@ -20,8 +22,9 @@ class Layer:
         self.outputs = [weakref.ref(x) for x in outputs]
         return outputs if len(outputs) > 1 else outputs[0]
 
-    def forward(self, *xs: np.ndarray) -> tuple:
-        raise NotImplementedError()
+    @abstractmethod
+    def forward(self, *xs: np.ndarray) -> tuple[Variable, ...]:
+        pass
 
     def params(self):
         for name in self._params:
@@ -38,6 +41,9 @@ class Layer:
 
 
 class Linear(Layer):
+    def __call__(self, *inputs: np.ndarray) -> Variable:
+        return super().__call__(*inputs)
+
     def __init__(self, out_size: int, nobias: bool = False, dtype=np.float32,
                  in_size: Optional[int] = None) -> None:
         super().__init__()
