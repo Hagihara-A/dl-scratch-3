@@ -1,7 +1,7 @@
 import numpy as np
 from dezero.core import Variable
 from dezero.functions import broadcast_to, get_item, linear, matmul, mean_squared_error,\
-    reshape, sigmoid, sum_to, tanh, transpose, sum
+    reshape, sigmoid, softmax, sum_to, tanh, transpose, sum
 from unittest import TestCase
 from numpy.testing import assert_almost_equal, assert_equal
 
@@ -191,3 +191,22 @@ class GetItemTest(TestCase):
         y = get_item(x, ind)
         y.backward()
         assert_equal(x.grad.data, [[1, 1, 1], [2, 2, 2]])
+
+
+class SoftmaxTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.array([[1, 6, 4, 1, 2]]*2))
+        y = softmax(x)
+        assert_almost_equal(y.data,
+                            [[0.00577311, 0.85680492,
+                             0.11595594, 0.00577311, 0.01569293]]*2)
+
+    def test_backward(self):
+        x = Variable(np.array([[1, 6, 4, 1, 2]]*2))
+        y = softmax(x)
+        y.backward()
+        y_expected = np.array([[0.00577311, 0.85680492,
+                               0.11595594, 0.00577311, 0.01569293]]*2)
+
+        gx_expected = y_expected * (1 - y_expected)
+        assert_almost_equal(x.grad.data, gx_expected)
