@@ -1,6 +1,6 @@
 import numpy as np
 from dezero.core import Variable
-from dezero.functions import broadcast_to, linear, matmul, mean_squared_error,\
+from dezero.functions import broadcast_to, get_item, linear, matmul, mean_squared_error,\
     reshape, sigmoid, sum_to, tanh, transpose, sum
 from unittest import TestCase
 from numpy.testing import assert_almost_equal, assert_equal
@@ -176,3 +176,18 @@ class SigmoidTest(TestCase):
         y = sigmoid(x)
         y.backward()
         assert_almost_equal(x.grad.data, [(1-out)*out]*2)
+
+
+class GetItemTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.array([[1, 2, 3], [4, 5, 6]]))
+        ind = [1, 1, 0]
+        y = get_item(x, ind)
+        assert_equal(y.data, [[4, 5, 6], [4, 5, 6], [1, 2, 3]])
+
+    def test_backward(self):
+        x = Variable(np.array([[1, 2, 3], [4, 5, 6]]))
+        ind = [1, 1, 0]
+        y = get_item(x, ind)
+        y.backward()
+        assert_equal(x.grad.data, [[1, 1, 1], [2, 2, 2]])
