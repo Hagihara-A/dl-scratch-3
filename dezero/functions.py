@@ -372,3 +372,23 @@ class Softmax(Function):
 
 def softmax(x: Operatable, axis=1):
     return Softmax(axis)(x)
+
+
+class Log(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, = xs
+        return np.log(x),
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        x, = self.inputs
+        gy, = gys
+        return gy/x,
+
+
+def log(x: Operatable):
+    return Log()(x)
+
+
