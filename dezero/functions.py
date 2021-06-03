@@ -347,3 +347,28 @@ class GetItemGrad(Function):
 
 def get_item(x: Variable, indices: list[int] | np.ndarray):
     return GetItem(indices)(x)
+
+
+class Softmax(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
+    def __init__(self, axis=1):
+        self.axis = axis
+
+    def forward(self, *xs: np.ndarray):
+        x, = xs
+        y = x - x.max(axis=self.axis, keepdims=True)
+        y = np.exp(y)
+        y /= y.sum(axis=self.axis, keepdims=True)
+        return y,
+
+    def backward(self, *gys: Variable):
+        gy, = gys
+        y = self.outputs[0]()
+        gx = gy * y * (1-y)
+        return gx,
+
+
+def softmax(x: Operatable, axis=1):
+    return Softmax(axis)(x)
