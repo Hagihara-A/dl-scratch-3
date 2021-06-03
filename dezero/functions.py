@@ -411,3 +411,13 @@ class Clip(Function):
 def clip(x, x_min: float, x_max: Optional[float]):
     return Clip(x_min, x_max)(x)
 
+
+def softmax_cross_entropy_simple(x, t):
+    x, t = as_variable(x), as_variable(t)
+    N = x.shape[0]
+    p = softmax(x)
+    p = clip(p, 1e-15, 1.0)  # To avoid log(0)
+    log_p = log(p)
+    tlog_p = get_item(log_p, (np.arange(N), t.data))
+    y = -1 * sum(tlog_p) / N
+    return y
