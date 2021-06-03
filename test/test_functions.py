@@ -1,9 +1,9 @@
+from numpy.testing import assert_almost_equal, assert_equal
+from unittest import TestCase
 import numpy as np
 from dezero.core import Variable
-from dezero.functions import broadcast_to, get_item, linear, matmul, mean_squared_error,\
-    reshape, sigmoid, softmax, sum_to, tanh, transpose, sum
-from unittest import TestCase
-from numpy.testing import assert_almost_equal, assert_equal
+from dezero.functions import broadcast_to, get_item, linear, log, matmul,\
+    mean_squared_error, reshape, sigmoid, softmax, sum_to, tanh, transpose, sum
 
 
 class TanhTest(TestCase):
@@ -210,3 +210,26 @@ class SoftmaxTest(TestCase):
 
         gx_expected = y_expected * (1 - y_expected)
         assert_almost_equal(x.grad.data, gx_expected)
+
+
+class LogTest(TestCase):
+    def test_forward(self):
+        x = Variable(np.array([0.5, 1, 6]))
+        y = log(x)
+        assert_almost_equal(y.data, [-0.69314718055, 0., 1.791759469])
+
+    def test_backward(self):
+        x = Variable(np.array([0.5, 1, 6]))
+        y = log(x)
+        y.backward()
+        gx_expected = np.array(1/x.data)
+        assert_almost_equal(x.grad.data, gx_expected)
+
+# class SoftMaxCrossEntropyTest(TestCase):
+#     def test_forward(self):
+#         x = Variable(np.array([[1, 2], [1, 5]]))
+#         t = np.array([[1], [0]])
+#         y = softmax_cross_entropy(x, t)
+#         e = np.e
+#         y_expected = [[-np.log(e**2/(e+e**2))], [-np.log(e/(e+e**5))]]
+#         assert_almost_equal(y.data, y_expected)
