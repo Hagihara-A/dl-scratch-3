@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from dezero import utils
-from typing import Optional
+from typing import Optional, Union
+
 import numpy as np
 
-from .core import Function, Variable, as_variable, Operatable
+from dezero import utils
+
+from .core import Function, Operatable, Variable, as_variable
 
 
 class Square(Function):
@@ -305,3 +307,43 @@ class Sigmoid(Function):
 
 def sigmoid(x):
     return Sigmoid()(x)
+
+
+Slice = Union[list[int], np.ndarray]
+
+
+class GetItem(Function):
+    def __init__(self, slices: Slice):
+        self.slices = slices
+
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, = xs
+        return x[self.slices],
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        x, = self.inputs
+        return GetItemGrad(self.slices, x.shape)(gy),
+
+
+class GetItemGrad(Function):
+    def __init__(self, slices: Slice, in_shape: tuple[int]):
+        self.slices = slices
+        self.in_shape = in_shape
+
+    def forward(self, *gys: np.ndarray) -> tuple[np.ndarray, ...]:
+        gy, = gys
+        gx = np.zeros(self.in_shape, dtype=gy.dtype)
+        np.add.at(gx, self.slices, gy)
+        return gx,
+
+    def backward(self, *ggxs: Variable) -> tuple[Variable, ...]:
+        ggx, = ggxs
+        return get_item(ggx, self.slices),
+
+
+def get_item(x: Variable, indices: list[int] | np.ndarray):
+    return GetItem(indices)(x)
