@@ -349,6 +349,13 @@ def get_item(x: Variable, indices: list[int] | np.ndarray):
     return GetItem(indices)(x)
 
 
+def _softmax(x: np.ndarray, axis=1) -> np.ndarray:
+    x -= x.max(axis=axis, keepdims=True)
+    x_exp = np.exp(x)
+    y = x_exp / x_exp.sum(axis=1, keepdims=True) + 1e-7
+    return y
+
+
 class Softmax(Function):
     def __call__(self, *inputs_raw: Operatable) -> Variable:
         return super().__call__(*inputs_raw)
@@ -358,10 +365,7 @@ class Softmax(Function):
 
     def forward(self, *xs: np.ndarray):
         x, = xs
-        y = x - x.max(axis=self.axis, keepdims=True)
-        y = np.exp(y)
-        y /= y.sum(axis=self.axis, keepdims=True)
-        return y,
+        return _softmax(x),
 
     def backward(self, *gys: Variable):
         gy, = gys
@@ -429,8 +433,7 @@ class SoftmaxCrossEntropy(Function):
 
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, t = xs
-        x_exp = np.exp(x - np.max(x))
-        y = x_exp / x_exp.sum(axis=1, keepdims=True)
+        y = _softmax(x)
 
         L = -np.log(y[np.arange((len(x))), t]).sum() / len(x)
         return L,
