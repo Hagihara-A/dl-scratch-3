@@ -99,3 +99,12 @@ def reshape_sum_backward(gy: Variable, x_shape: tuple[int, ...],
 
     gy = gy.reshape(shape)  # reshape
     return gy
+
+
+def to_onehot(t: np.ndarray, labels: int):
+    if (t.ndim == 1):
+        onehot = np.zeros((len(t), labels))
+        onehot[np.arange(len(t)), t] = 1
+        return onehot
+    else:
+        raise ValueError("ndim must be 1")
