@@ -421,3 +421,28 @@ def softmax_cross_entropy_simple(x, t):
     tlog_p = get_item(log_p, (np.arange(N), t.data))
     y = -1 * sum(tlog_p) / N
     return y
+
+
+class SoftmaxCrossEntropy(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, t = xs
+        x_exp = np.exp(x)
+        y = x_exp / x_exp.sum(axis=1, keepdims=True)
+        self.y: np.ndarray = y
+
+        L = -np.log(y[np.arange((len(x))), t]).sum() / len(x)
+        return L,
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        _, t = self.inputs
+        y = self.y
+        t_onehot = np.eye(y.shape[1], dtype=t.dtype)[t.data]
+        return (y - t_onehot) / len(y) * gy,
+
+
+def softmax_cross_entropy(x: Operatable, t: Operatable):
+    return SoftmaxCrossEntropy()(x, t)
