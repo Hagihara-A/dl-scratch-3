@@ -448,3 +448,9 @@ class SoftmaxCrossEntropy(Function):
 
 def softmax_cross_entropy(x: Operatable, t: Operatable):
     return SoftmaxCrossEntropy()(x, t)
+
+
+def accuracy(y: np.ndarray, t: np.ndarray) -> float:
+    pred: np.ndarray = y.argmax(axis=1).reshape(t.shape)
+    result: np.ndarray = (pred == t)
+    return result.mean()
