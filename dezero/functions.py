@@ -429,17 +429,16 @@ class SoftmaxCrossEntropy(Function):
 
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
         x, t = xs
-        x_exp = np.exp(x)
+        x_exp = np.exp(x - np.max(x))
         y = x_exp / x_exp.sum(axis=1, keepdims=True)
-        self.y: np.ndarray = y
 
         L = -np.log(y[np.arange((len(x))), t]).sum() / len(x)
         return L,
 
     def backward(self, *gys: Variable) -> tuple[Variable, ...]:
         gy, = gys
-        _, t = self.inputs
-        y = self.y
+        x, t = self.inputs
+        y = softmax(x)
         t_onehot = np.eye(y.shape[1], dtype=t.dtype)[t.data]
         return (y - t_onehot) / len(y) * gy,
 
