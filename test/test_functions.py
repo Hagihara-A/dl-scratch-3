@@ -251,4 +251,4 @@ class SoftMaxCrossEntropyTest(TestCase):
 
         y = np.exp(x.data) / np.exp(x.data).sum(axis=1, keepdims=True)
         gx_expected = 1/m * (y - t_onehot)
-        assert_equal(x.grad.data, gx_expected)
+        assert_almost_equal(x.grad.data, gx_expected)
