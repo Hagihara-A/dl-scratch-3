@@ -238,7 +238,7 @@ class SoftMaxCrossEntropyTest(TestCase):
             np.exp(x.data).sum(axis=1, keepdims=True)
         y_expected = -np.log(y_expected)
         y_expected = y_expected[np.arange(4), t].sum() / 4
-        assert_almost_equal(y.data, y_expected)
+        assert_almost_equal(y.data, y_expected, decimal=5)
 
     def test_backward(self):
         x = Variable(
@@ -252,3 +252,28 @@ class SoftMaxCrossEntropyTest(TestCase):
         y = np.exp(x.data) / np.exp(x.data).sum(axis=1, keepdims=True)
         gx_expected = 1/m * (y - t_onehot)
         assert_almost_equal(x.grad.data, gx_expected)
+
+    def test_dont_overflow(self):
+        x = Variable(np.array([[1.0, 100.0, 10000.0]]))
+        t = np.array([0])
+        L = F.softmax_cross_entropy(x, t)
+        self.assertFalse(np.isnan(L.data) or np.isinf(L.data))
+
+    def test_dont_divide_by_zero(self):
+        x = np.array([[1., 0., 300000., 400000.]])
+        t = np.array([1])
+        L = F.softmax_cross_entropy(x, t)
+        self.assertFalse(np.isnan(L.data) or np.isinf(L.data))
+
+
+class Test__softmax(TestCase):
+    def test_small_x(self):
+        x = np.array([[1, 2, 3, 4]])
+        y = F._softmax(x)
+        y_expected = np.exp(x) / np.exp(x).sum(axis=1, keepdims=True)
+        assert_almost_equal(y, y_expected)
+
+    def test_big_input_dont_overflow(self):
+        x = np.array([[100000, 200000, 300000, 400000]])
+        y = F._softmax(x)
+        self.assertFalse(np.isnan(y).any() or np.isinf(y).any())
