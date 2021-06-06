@@ -5,6 +5,7 @@ import weakref
 from dezero.core import Parameter, Variable
 import numpy as np
 import dezero.functions as F
+import os
 
 
 class Layer(ABC):
@@ -39,7 +40,7 @@ class Layer(ABC):
         for param in self.params():
             param.clear_grad()
 
-    def _flatten_params(self, params_dict: dict, parent_key=""):
+    def _flatten_params(self, params_dict: dict[str, Parameter], parent_key=""):
         for name in self._params:
             obj = self.__dict__[name]
             key = parent_key + '/' + name if parent_key else name
@@ -47,6 +48,24 @@ class Layer(ABC):
                 obj._flatten_params(params_dict, key)
             else:
                 params_dict[key] = obj
+
+    def save_weights(self, path: str):
+        params_dict: dict[str, Parameter] = {}
+        self._flatten_params(params_dict)
+        array_dict = {key: param.data for key, param in params_dict.items()}
+        try:
+            np.savez_compressed(path, **array_dict)
+        except (Exception, KeyboardInterrupt) as e:
+            if os.path.exists(path):
+                os.remove(path)
+            raise e
+
+    def load_weights(self, path: str):
+        npz = np.load(path)
+        params_dict: dict[str, Parameter] = {}
+        self._flatten_params(params_dict)
+        for key, param in params_dict.items():
+            param.data = npz[key]
 
 
 class Linear(Layer):
