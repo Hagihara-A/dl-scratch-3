@@ -454,3 +454,24 @@ def accuracy(y: np.ndarray, t: np.ndarray) -> float:
     pred: np.ndarray = y.argmax(axis=1).reshape(t.shape)
     result: np.ndarray = (pred == t)
     return result.mean()
+
+
+class ReLU(Function):
+    def __call__(self, *inputs_raw: Operatable) -> Variable:
+        return super().__call__(*inputs_raw)
+
+    def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
+        x, = xs
+        y = np.maximum(x, 0.0)
+        return y,
+
+    def backward(self, *gys: Variable) -> tuple[Variable, ...]:
+        gy, = gys
+        x, = self.inputs
+        mask = x.data > 0
+        gx = gy * mask
+        return gx,
+
+
+def relu(x: Variable):
+    return ReLU()(x)
