@@ -277,3 +277,16 @@ class Test__softmax(TestCase):
         x = np.array([[100000, 200000, 300000, 400000]])
         y = F._softmax(x)
         self.assertFalse(np.isnan(y).any() or np.isinf(y).any())
+
+
+class ReLUTest(TestCase):
+    def test_forward(self):
+        x = np.array([[1, 0, -1, 5], [-1, -2, 5, 0]])
+        y = F.relu(x)
+        assert_equal(y.data, [[1, 0, 0, 5], [0, 0, 5, 0]])
+
+    def test_backward(self):
+        x = Variable(np.array([[1, 0, -1, 5], [-1, -2, 5, 0]]))
+        y = F.relu(x)
+        y.backward()
+        assert_equal(x.grad.data, [[1, 0, 0, 1], [0, 0, 1, 0]])
