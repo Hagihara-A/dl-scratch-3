@@ -69,9 +69,8 @@ class MNIST(Dataset):
 
     def __init__(self, train=True,
                  transform=Compose([Flatten(), ToFloat(),
-                                    Normalize(0., 255.)]),
-                 target_transform=None):
-        super().__init__(train, transform, target_transform)
+                                    Normalize(0., 255.)])):
+        super().__init__(train, transform)
 
     def prepare(self):
         url = 'http://yann.lecun.com/exdb/mnist/'
