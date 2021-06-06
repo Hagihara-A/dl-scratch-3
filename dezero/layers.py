@@ -39,6 +39,15 @@ class Layer(ABC):
         for param in self.params():
             param.clear_grad()
 
+    def _flatten_params(self, params_dict: dict, parent_key=""):
+        for name in self._params:
+            obj = self.__dict__[name]
+            key = parent_key + '/' + name if parent_key else name
+            if isinstance(obj, Layer):
+                obj._flatten_params(params_dict, key)
+            else:
+                params_dict[key] = obj
+
 
 class Linear(Layer):
     def __call__(self, *inputs: np.ndarray) -> Variable:
