@@ -1,4 +1,4 @@
-from dezero.utils import to_onehot
+import dezero
 from numpy.testing import assert_almost_equal, assert_equal
 from unittest import TestCase
 import numpy as np
@@ -290,3 +290,26 @@ class ReLUTest(TestCase):
         y = F.relu(x)
         y.backward()
         assert_equal(x.grad.data, [[1, 0, 0, 1], [0, 0, 1, 0]])
+
+
+class DropoutTest(TestCase):
+    def test_forward_on_train(self):
+        np.random.seed(2)
+        x = np.array([[0., 1.], [2., 3.]])
+        mask = np.array([[False, False], [True, False]])
+        y, = F.dropout(x)
+        assert_equal(y.data, x*mask/0.5)
+
+    def test_forward_on_infer(self):
+        np.random.seed(2)
+        x = np.array([[0., 1.], [2., 3.]])
+        with dezero.config.test_mode():
+            y, = F.dropout(x)
+            assert_equal(y.data, x)
+
+    def test_backward_on_train(self):
+        np.random.seed(2)
+        x = Variable(np.array([[0., 1.], [2., 3.]]))
+        y, = F.dropout(x)
+        y.backward()
+        assert_equal(x.grad.data, [[0., 0.], [2., 0.]])
