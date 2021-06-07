@@ -1,5 +1,6 @@
-from typing import TypeVar
-from .core import Function
+from dezero.functions import Array, linear
+from typing import Optional, TypeVar
+from .core import Function, Variable, as_variable
 import numpy as np
 from dezero.utils import pair
 
@@ -17,12 +18,12 @@ class Im2col(Function):
         self.input_shape = x.shape
         y = im2col_array(x, self.kernel_size, self.stride, self.pad,
                          self.to_matrix)
-        return y
+        return y,
 
     def backward(self, gy):
         gx = col2im(gy, self.input_shape, self.kernel_size, self.stride,
                     self.pad, self.to_matrix)
-        return gx
+        return gx,
 
 
 def im2col(x, kernel_size, stride=1, pad=0, to_matrix=True):
@@ -64,12 +65,12 @@ class Col2im(Function):
     def forward(self, x):
         y = col2im_array(x, self.input_shape, self.kernel_size, self.stride,
                          self.pad, self.to_matrix)
-        return y
+        return y,
 
     def backward(self, gy):
         gx = im2col(gy, self.kernel_size, self.stride, self.pad,
                     self.to_matrix)
-        return gx
+        return gx,
 
 
 def col2im(x, input_shape, kernel_size, stride=1, pad=0, to_matrix=True):
@@ -135,3 +136,21 @@ def get_conv_outsize(image: T, kernel: T, stride: T, pad: T):
         SH, SW = stride
         PH, PW = pad
         return get_conv_outsize(H, KH, SH, PH), get_conv_outsize(W, KW, SW, PW)
+
+
+def conv2d_simple(x: Array, K: Variable, b: Optional[Variable] = None,
+                  stride: int = 1, pad: int = 0):
+    x = as_variable(x)
+
+    N, C, H, W = x.shape
+    OC, C, KH, KW = K.shape
+    SH, SW = pair(stride)
+    PH, PW = pair(pad)
+    OH = get_conv_outsize(H, KH, SH, PH)
+    OW = get_conv_outsize(W, KW, SW, PW)
+
+    col = im2col(x, (KH, KW), stride, pad, to_matrix=True)
+    K = K.reshape((OC, -1)).transpose()
+    t = linear(col, K, b)
+    y = t.reshape((N, OH, OW, OC)).transpose((0, 3, 1, 2))
+    return y
