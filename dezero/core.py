@@ -119,8 +119,8 @@ class Variable:
     def __pow__(self, other: int):
         return pow(self, other)
 
-    def transpose(self):
-        return dezero.functions.transpose(self)
+    def transpose(self, axes=None):
+        return dezero.functions.transpose(self, axes)
 
     @property
     def T(self):
@@ -130,10 +130,10 @@ class Variable:
         return dezero.functions.reshape(self, shape)
 
 
-Operatable = Union[int, float, np.ndarray, Variable]
+Operatable = Union[int, float, np.ndarray, Variable, None]
 
 
-def as_variable(x: Operatable | None):
+def as_variable(x: Operatable):
     if isinstance(x, Variable):
         return x
     else:
@@ -145,7 +145,8 @@ def as_variable(x: Operatable | None):
             return Variable(x)
         else:
             raise TypeError(
-                f"given type is {type(x)}, expected Operatble | None")
+                f"given type is {type(x)},\
+                 expected Union[int, float, np.ndarray, Variable, None]")
 
 
 class Function(ABC):

@@ -3,11 +3,13 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import numpy as np
-
+from numpy.typing import _ShapeLike
 from dezero import utils
 import dezero
 
 from .core import Function, Operatable, Variable, as_variable
+
+Array = Union[np.ndarray, Variable]
 
 
 class Square(Function):
@@ -133,16 +135,17 @@ class Transpose(Function):
         return super().__call__(*inputs_raw)
 
     def forward(self, *xs: np.ndarray) -> tuple[np.ndarray, ...]:
-        x, = xs
-        return x.transpose(),
+        x, self.axes = xs
+        return x.transpose(self.axes),
 
     def backward(self, *gys: Variable) -> tuple[Variable, ...]:
         gy, = gys
-        return transpose(gy),
+        return transpose(gy, self.axes),
 
 
-def transpose(x: Variable):
-    return Transpose()(x)
+def transpose(x: Variable, axes: _ShapeLike = None):
+    ax = None if axes is None else np.array(axes)
+    return Transpose()(x, ax)
 
 
 class Sum(Function):
