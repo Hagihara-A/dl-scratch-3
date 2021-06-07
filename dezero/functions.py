@@ -5,6 +5,7 @@ from typing import Optional, Union
 import numpy as np
 
 from dezero import utils
+import dezero
 
 from .core import Function, Operatable, Variable, as_variable
 
@@ -475,3 +476,15 @@ class ReLU(Function):
 
 def relu(x: Variable):
     return ReLU()(x)
+
+
+def dropout(x: Variable | np.ndarray, dropout_ratio=0.5) -> tuple[Variable]:
+    xv = as_variable(x)
+
+    if dezero.Config.train:
+        mask = np.random.rand(*x.shape) > dropout_ratio
+        scale = np.array(1-dropout_ratio).astype(xv.dtype)
+        y = x * mask / scale
+        return y,
+    else:
+        return xv,
