@@ -8,7 +8,7 @@ from dezero import utils
 import dezero
 
 from .core import Function, Operatable, Variable, as_variable
-
+from .functions_conv import *
 Array = Union[np.ndarray, Variable]
 
 
