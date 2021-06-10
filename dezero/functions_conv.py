@@ -1,4 +1,4 @@
-from dezero.functions import Array, linear
+import dezero.functions as F
 from typing import Optional, TypeVar
 from .core import Function, Variable, as_variable
 import numpy as np
@@ -138,7 +138,7 @@ def get_conv_outsize(image: T, kernel: T, stride: T, pad: T):
         return get_conv_outsize(H, KH, SH, PH), get_conv_outsize(W, KW, SW, PW)
 
 
-def conv2d_simple(x: Array, K: Variable, b: Optional[Variable] = None,
+def conv2d_simple(x, K: Variable, b: Optional[Variable] = None,
                   stride: int = 1, pad: int = 0):
     x = as_variable(x)
 
@@ -151,6 +151,23 @@ def conv2d_simple(x: Array, K: Variable, b: Optional[Variable] = None,
 
     col = im2col(x, (KH, KW), stride, pad, to_matrix=True)
     K = K.reshape((OC, -1)).transpose()
-    t = linear(col, K, b)
+    t = F.linear(col, K, b)
     y = t.reshape((N, OH, OW, OC)).transpose((0, 3, 1, 2))
+    return y
+
+
+def pooling_simple(x, kernel_size: int, stride=1, pad=0):
+    x = as_variable(x)
+
+    N, C, H, W = x.shape
+    KH, KW = pair(kernel_size)
+    PH, PW = pair(pad)
+    SH, SW = pair(stride)
+    OH = get_conv_outsize(H, KH, SH, PH)
+    OW = get_conv_outsize(W, KW, SW, PW)
+
+    col = im2col(x, kernel_size, stride, pad, to_matrix=True)
+    col = col.reshape(-1, KH*KW)
+    y = col.max(axis=1)
+    y.reshape(N, OH, OW, C).transpose(0, 3, 1, 2)
     return y
