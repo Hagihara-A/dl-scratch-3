@@ -1,5 +1,6 @@
+from dezero.core import Variable
 import numpy as np
-from .layers import Layer, Linear
+from .layers import Layer, Linear, RNN
 from .functions import sigmoid
 from .utils import plot_dot_graph
 
@@ -27,3 +28,19 @@ class MLP(Model):
         for ly in self.layers[:-1]:
             x = self.activation(ly(x))
         return self.layers[-1](x),
+
+
+class SimpleRNN(Model):
+    def __init__(self, hidden_size: int, out_size: int) -> None:
+        super().__init__()
+        self.rnn = RNN(hidden_size)
+        self.fc = Linear(out_size)
+
+    def reset_state(self):
+        self.rnn.reset_state()
+
+    def forward(self, *xs: np.ndarray) -> tuple[Variable, ...]:
+        x, = xs
+        h = self.rnn(x)
+        y = self.fc(h)
+        return y,
